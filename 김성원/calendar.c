@@ -7,20 +7,23 @@
 #include "calendar_display.h"
 #include "calendar.h"
 
-int year = 0;
-int month = 0;
-int day = 0;
-
+int year = 0, month = 0, day = 0;
+int td_year = 0, td_month = 0, td_day = 0;
+int color = 0, prev_first_color = 0, cur_first_color = 0;
 int main()
 {
     int ch;
 	// 현재 날짜와 시간을 가져옴
     time_t t = time(NULL);
     struct tm *date = localtime(&t);   
+    
+    td_year = date->tm_year + 1900;  // 현재 연도 (tm_year는 1900년부터 시작)
+    td_month = date->tm_mon + 1;     // 현재 월 (tm_mon은 0부터 시작)
+	td_day = date->tm_mday;          // 현재 일
 
-    year = date->tm_year + 1900;  // 현재 연도 (tm_year는 1900년부터 시작)
-    month = date->tm_mon + 1;     // 현재 월 (tm_mon은 0부터 시작)
-	day = date->tm_mday;          // 현재 일
+    year = td_year;
+    month = td_month;
+    day = td_day;
 	
 	initscr();
 	clear();
@@ -33,6 +36,12 @@ int main()
     init_pair(3, COLOR_BLACK, COLOR_WHITE); // 평일 반전
     init_pair(4, COLOR_RED, COLOR_WHITE);   // 일요일 반전
     init_pair(5, COLOR_BLUE, COLOR_WHITE);  // 토요일 반전
+
+    init_pair(6, COLOR_WHITE, COLOR_RED);   // 초과 일정 수 
+    init_pair(7, COLOR_WHITE, COLOR_MAGENTA);   // 막대 일정 1
+    init_pair(8, COLOR_WHITE, COLOR_GREEN);   // 막대 일정 2
+    init_pair(9, COLOR_WHITE, COLOR_CYAN);   // 막대 일정 3
+    
 
 	// SIGWINCH 신호 처리기 설정
     signal(SIGWINCH, handle_winch);
@@ -50,6 +59,7 @@ int main()
         move(LINES - 1, 0);
         refresh();
         ch = getch();
+
 
         switch(ch)
         {
@@ -69,9 +79,14 @@ int main()
                 show_calendar();
                 break;
             case(KEY_RIGHT): // 다음 날짜 이동
+                color = ((color + 2) % 3);
+                prev_first_color = cur_first_color;
+                cur_first_color = color;
                 change_date(date, 1);
                 break;
             case(KEY_LEFT): // 이전 날짜 이동
+                color = prev_first_color;
+                cur_first_color = color;
                 change_date(date, -1);
                 break;
             case(ERR):  // 비차단 모드에서 입력 상태 유지

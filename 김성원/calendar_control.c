@@ -13,7 +13,6 @@ int state = MONTHLY_CALENDAR;
 void show_calendar()
 {
 	clear();
-	
     // 터미널 화면정보 다시 가져오기
     if(ioctl(0, TIOCGWINSZ, &wbuf) != -1) {     
         switch (state)
@@ -70,5 +69,8 @@ void handle_winch(int sig) {
     refresh();
     clear();
 
+    color = ((color + 2) % 3);
+    prev_first_color = cur_first_color;
+    cur_first_color = color;
     show_calendar();
 }
