@@ -2,10 +2,10 @@
 #include <string.h>
 #include <curses.h>
 #include <stdlib.h>
-#include <sys/ioctl.h>
 #include "calendar.h"
 #include "calendar_get_event.h"
 
+// 일정 정보를 저장하는 구조체
 typedef struct info{
     char event_name[50];
 	int start_week;
@@ -58,6 +58,7 @@ int get_start_day_of_month(int year, int month) {
 		return h - 1;
 }
 
+// 일정 파일의 한 줄을 입력받아 구조체에 저장하는 함수
 void get_line(char *line, struct info* e, int type) {
     char *token = strtok(line, "|");
     token = strtok(NULL, "|"); // 일정 이름
@@ -114,6 +115,7 @@ int is_used(int week, int wday, int used_coordinate[6][7][3]) {
 	return 0;
 }
 
+// 출력 한도를 넘은 칸에 남은 일정 수 출력
 void exceed_event(int row, int col,int day, int event_cnt[]) {
     event_cnt[day] += 1;
 	
@@ -122,28 +124,32 @@ void exceed_event(int row, int col,int day, int event_cnt[]) {
 	attroff(COLOR_PAIR(6));
 }
 
+// 연속 일정을 막대로 표현하는 함수
 int manage_schedule_cell(int op, int done, int row, int col, int color, char* name, char*blank) {
                
-    if (!done)
+    if (!done) // 일정 이름이 출력되지 않았다면
     {
         attron(COLOR_PAIR(color));
         mvprintw(row + op, col, "%s", name);
         done = 1;
         attroff(COLOR_PAIR(color));
     }
-    else
+    else // 일정 이름이 출력된 경우
     {
         attron(COLOR_PAIR(color));
         mvprintw(row + op, col, "%s", blank);
         attroff(COLOR_PAIR(color));
+        done++;
     }
     return done;       
 }
 
+// 표 형식의 일정 출력
 int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
 {
     char name[width+1];
 
+    // 칸에 표현가능한 문자열인 경우 정상출력, 아니면 문자열 자르고 뒤에 ..표시
     if (strlen(event->event_name) <= width+1){
 		snprintf(name, width+1, "%-*s", width, event->event_name);
     }    
@@ -154,22 +160,32 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
 		snprintf(name, width, "%s..", temp);
 	}
 
+    // 일 기준 캘린더인 경우
     if (state == DAILY_CALENDAR)
     {
         mvprintw(x, y_coordinate[0], "%s", name);
         mvprintw(x, y_coordinate[1], "%s", event->start_time);
 
-        for (int i = 0; i < strlen(event->memo); i += width * 2)
-        {
-            // 화면의 높이를 초과하면 중단
-            if (x >= LINES - 3) {
-                break;
-            }
 
-            mvwprintw(stdscr, x, y_coordinate[2], "%.*s", width * 2, &event->memo[i]);
+        // 메모을 칸 크기에 맞추어 출력
+        if(strlen(event->memo) > 0)
+        {
+    
+            for (int i = 0; i < strlen(event->memo); i += width * 2)
+            {
+                // 화면의 높이를 초과하면 중단
+                if (x >= LINES - 3) {
+                    break;
+                }
+
+                mvwprintw(stdscr, x, y_coordinate[2], "%.*s", width * 2, &event->memo[i]);
+                x++;
+            }
         }
+        else
+            x++;
     }
-    else if (state == MONTHLY_CALENDAR)
+    else if (state == MONTHLY_CALENDAR) // 표 형식의 월 기준 캘린더인 경우
     {
         if (event->end_day == 0)
             mvprintw(x, y_coordinate[0], "%4d-%02d-%02d", event->start_year, event->start_month, event->start_day);
@@ -185,6 +201,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
     return x;
 }
 
+// 주 기준 캘랜더에 일정 출력
 int print_event_week(struct info *e, const int width, int x, int cnt, int y_coordinate[], int used_coordinate[][7]) 
 {
     char name[width+1];
@@ -192,6 +209,7 @@ int print_event_week(struct info *e, const int width, int x, int cnt, int y_coor
     memset(blank, ' ', width+1);
     blank[width] = '\0';
 
+    // 칸 크기에 맞는 문자열이면 정상출력, 아니면 문자열 자르고 .. 추가
     if (strlen(e->event_name) <= width+1) {
         snprintf(name, width+1, "%-*s", width, e->event_name);
     }
@@ -202,19 +220,19 @@ int print_event_week(struct info *e, const int width, int x, int cnt, int y_coor
 		snprintf(name, width+1, "%s..", temp);
 	}
     
-    if (e->end_day != 0){
+    if (e->end_day != 0){   // 연속 일정인 경우
         for (int i = e->end_wday; i >= e->start_wday ; i--)
         {
             int row = x;
             int col = y_coordinate[i];
 
             attron(COLOR_PAIR(color+7));
-            if(i == e->start_wday)
+            if(i == e->start_wday) // 일정 이름을 표시하는 경우
                 if (strlen(e->event_name) <= width+1)
                     mvprintw(row, col, "%s", name);
                 else
                     mvprintw(row, col, "%s", e->event_name);
-            else
+            else    // 막대 채우기
                 mvprintw(row, col, "%s", blank);
             attroff(COLOR_PAIR(color+7));
 
@@ -223,7 +241,7 @@ int print_event_week(struct info *e, const int width, int x, int cnt, int y_coor
         x++;
         return x; 
     }
-    else
+    else // 단일 일정인 경우
     {
         for (int i = cnt; i < 9; i++)
         {
@@ -250,6 +268,9 @@ void print_continuous_event(struct info *event, const int width, int color, int 
 	int op = -1, done = 0;
     int day = event->start_day;
     int row, col;
+    int s_row, s_col, s_wday; // 일정 출력할 좌표와 요일
+
+    // 칸 크기에 맞는 문자열이면 정상출력, 아니면 문자열 자르고 .. 추가
 	if (strlen(event->event_name) <= width+1) {
         snprintf(name, width+1, "%-*s", width, event->event_name);
     }
@@ -261,11 +282,12 @@ void print_continuous_event(struct info *event, const int width, int color, int 
 
     memset(temp, ' ', width+1);
     temp[width] = '\0';
-
+    
+    // 일정 출력
     for (int i = event->start_week; i <= event->end_week; i++)
     {
         if (i == event->start_week) // 첫째 주인 경우
-        {
+        {   
             int end = 6;
             if (event->start_week == event->end_week)
                 end = event->end_wday;
@@ -274,24 +296,27 @@ void print_continuous_event(struct info *event, const int width, int color, int 
                 row = x_coordinate[i][j];
                 col = y_coordinate[i][j];
 
+                // 사용 가능한 칸 확인 
                 if (op < 1)
                     op = is_used(i, j, used_coordinate);
 
-                if (op == 0)
+                if (op == 0) // 초과 일정으로 표시
                     exceed_event(row, col, day, event_cnt);
-                else {
-                    if (j == 6)
-                        done = manage_schedule_cell(op, done, row, col, color, name, temp);
-                    else{
-                        if (strlen(event->event_name) <= width+1)
-                            done = manage_schedule_cell(op, done, row, col, color, name, temp);
-                        else
-                            done = manage_schedule_cell(op, done, row, col, color, event->event_name, temp);
-                    }
-                }
+                else 
+                    done = manage_schedule_cell(op, done, row, col, color, name, temp);
+
+                if (done == 1)
+                {
+                    s_row = row; s_col = col; s_wday = j;
+                }  
                 used_coordinate[i][j][op] = 1; // 줄 사용 표시
-                day++;
+                day++;  
             }
+            if (s_wday == 6)
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, name, temp);
+            else
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, event->event_name, temp);
+                
         }
         else if (i == event->end_week) // 마지막 주인 겨우
         {
@@ -300,19 +325,28 @@ void print_continuous_event(struct info *event, const int width, int color, int 
                 row = x_coordinate[i][j];
                 col = y_coordinate[i][j];
 
+                // 사용 가능한 칸 확인 
                 if (op < 1)
                     op = is_used(i, j, used_coordinate);
                 
-                if (op == 0)
+                if (op == 0) // 초과 일정
                     exceed_event(row, col, day, event_cnt);
-                else
+                else // 막대 표시
                 {
                     done = manage_schedule_cell(op, done, row, col, color, event->event_name, temp);
                 }
 
+                if (done == 1)
+                {
+                    s_row = row; s_col = col; s_wday = j;
+                }  
                 used_coordinate[i][j][op] = 1; // 줄 사용 표시
-                day++;
+                day++;  
             }
+            if (s_wday == 6)
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, name, temp);
+            else
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, event->event_name, temp);
         }
         else // 나머지 주들
         {
@@ -321,20 +355,31 @@ void print_continuous_event(struct info *event, const int width, int color, int 
                 row = x_coordinate[i][j];
                 col = y_coordinate[i][j];
 
+                // 사용 가능한 칸인지 확인
                 if (op < 1)
                     op = is_used(i, j, used_coordinate);
                 
-                if (op == 0)
+                if (op == 0) // 초과 일정으로 표시
                     exceed_event(row, col, day, event_cnt);
-                else
+                else // 막대 표시
                 {
                     done = manage_schedule_cell(op, done, row, col, color, event->event_name, temp);
                 }
+
+                if (done == 1)
+                {
+                    s_row = row; s_col = col; s_wday = j;
+                }  
                 used_coordinate[i][j][op] = 1; // 줄 사용 표시
-                day++;
+                day++;  
             }
+            if (s_wday == 6)
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, name, temp);
+            else
+                done = manage_schedule_cell(op, 0, s_row, s_col, color, event->event_name, temp);
         }
     }
+
 
 	return;
 }
@@ -345,6 +390,7 @@ void print_single_event(struct info *event, const int width, int x_coordinate[6]
 	char name[width+1];
 	int row, col, op;
 
+    // 칸 크기에 맞는 문자열이면 정상출력, 아니면 문자열 자르고 .. 추가
 	if (strlen(event->event_name) <= width+1){
 		snprintf(name, width+1, "%-*s", width, event->event_name);
     }    
@@ -358,15 +404,16 @@ void print_single_event(struct info *event, const int width, int x_coordinate[6]
 	row = x_coordinate[event->start_week][event->start_wday];
     col = y_coordinate[event->start_week][event->start_wday];
 
+    // 사용 가능한 칸인지 확인
     op = is_used(event->start_week, event->start_wday, used_coordinate);
 
-    if (op == 0) {
+    if (op == 0) { // 초과 일정으로 표시
 	    event_cnt[event->start_day] += 1;
         attron(COLOR_PAIR(6));
 	    mvprintw(row, col + 3, "%d+", event_cnt[event->start_day]);
 	    attroff(COLOR_PAIR(6));
     }
-    else
+    else // 일정 표시
     {
         mvprintw(row + op, col, "%s", name);
     }
@@ -484,18 +531,19 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
         exit(1);
     }
 
-    // 파일 읽기
+    // 연속 일정 파일 읽기
     while (fgets(line, sizeof(line), file) != NULL) {
         // 한 줄 파싱
         get_line(line, &e, 1);
 
+        // 일정이 현재 주에 포함되는지 확인
         int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
         int end_date = e.end_year * 10000 + e.end_month * 100 + e.end_day;
         int w_start_date = year * 10000 + month * 100 + start_day;
         int w_end_date = (start_day < end_day) ? year * 10000 + month * 100 + end_day : 
                          (e.end_month == 1) ? (year + 1) * 10000 + (1) * 100 + end_day : (year) * 10000 + (month+1) * 100 + end_day;
         
-        if (start_date < w_start_date && w_end_date < end_date)
+        if (start_date < w_start_date && w_end_date < end_date) // 일정이 현재 주에 포함되고 일정의 시작일과 종료일이 주 안에 포함되지 핞는 경우
         {
             e.start_wday = 0;
             e.end_wday = 6;
@@ -503,7 +551,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
             cnt++;
             color = ((color + 1) % 3);
         }
-        else if ((start_date >= w_start_date && start_date <= w_end_date) && w_end_date < end_date)
+        else if (start_date >= w_start_date && w_end_date < end_date) // 일정의 시작일만 현재 주에 포함되는 경우
         {
             int days = days_in_month[month-1];
                 // 윤년이고 2월인 경우, 하루를 추가
@@ -511,6 +559,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
                 days = 29;
             }
 
+            // 달이 넘어가는 주와 아닌 주를 구분
             if (e.start_month == month)
                 e.start_wday = e.start_day - start_day;
             else if (e.start_month == month+1 || e.start_month == 1)
@@ -522,13 +571,15 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
             cnt++;
             color = ((color + 1) % 3);
         }
-        else if (start_date < w_start_date && (w_end_date >= end_date && end_date >= w_start_date))
+        else if (start_date < w_start_date && w_end_date >= end_date) // 일정의 종료일만 현재 주에 포함되는 경우
         {
             int days = days_in_month[month-1];
                 // 윤년이고 2월인 경우, 하루를 추가
             if (month == 2 && is_leap_year(year)) {
                 days = 29;
             }
+
+            // 달이 넘어가는 주와 아닌 주를 구분
             if (e.end_month == month)
                 e.end_wday = e.end_day - start_day;
             else if (e.end_month == month+1 || e.end_month == 1)
@@ -540,7 +591,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
             cnt++;
             color = ((color + 1) % 3);
         }
-        else if ((start_date >= w_start_date && start_date <= w_end_date) && (w_end_date >= end_date && end_date >= w_start_date))
+        else if (start_date >= w_start_date && w_end_date >= end_date) // 일정의 시작/종료일이 현재 주에 포함되는 경우
         {
             int days = days_in_month[month-1];
                 // 윤년이고 2월인 경우, 하루를 추가
@@ -548,6 +599,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
                 days = 29;
             }
 
+            // 달이 넘어가는 주와 아닌 주를 구분
             if (e.start_month == month)
                 e.start_wday = e.start_day - start_day;
             else if (e.start_month == month+1 || e.start_month == 1)
@@ -567,7 +619,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
 
     fclose(file);
 
-// 파일 열기
+    // 단일 일정 파일 열기
     if ((file = fopen(EVENT_FILE, "r")) == NULL) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
@@ -580,7 +632,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
         // 한 줄 파싱
         get_line(line, &e, 1);
 
-        if (start_day < end_day)
+        if (start_day < end_day) // 달이 넘어가는 주가 아닌 경우
         {
             if ((e.start_year == year && e.start_month == month) &&
                 (e.start_day >= start_day && e.start_day <= end_day))
@@ -590,7 +642,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
                 print_event_week(&e, width, x, cnt, y_coordinate, used_coordinate);
             }     
         }
-        else
+        else // 넘어가는 주인 경우
         {
             int days = days_in_month[month-1];
                 // 윤년이고 2월인 경우, 하루를 추가
@@ -599,7 +651,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
             }
             
             if ((e.start_year == year && e.start_month == month) &&
-                (e.start_day >= start_day && e.start_day <= days))
+                (e.start_day >= start_day && e.start_day <= days)) // 일정이 달을 넘어가지 않는 경우
             {
                 e.start_wday = e.start_day - start_day;
                 e.end_day = 0;
@@ -607,7 +659,7 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
 
             }
             else if (((e.start_year == year && e.start_month == month + 1) || (e.start_year == year + 1 && e.start_month == 1)) &&
-                    (e.start_day >= 1 && e.start_day <= end_day))
+                    (e.start_day >= 1 && e.start_day <= end_day)) // 일정이 달을 넘는 경우
             {
                 e.start_wday = days - start_day + e.start_day;
                 e.end_day = 0;
@@ -619,13 +671,14 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
     fclose(file); // 파일 닫기
 }
 
+// 표 형식의 캘린더에 일정을 가져와 출력하는 함수
 void get_event_in_table(int year, int month, int day, int width, int x, int y_coordinate[])
 {
     FILE *file;
 	info e;
     char line[256];
 
-    // 파일 열기
+    // 연속일정 파일 열기
     if ((file = fopen(EVENT_FILE2, "r")) == NULL) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
@@ -637,34 +690,42 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
     while (fgets(line, sizeof(line), file) != NULL) {
         // 한 줄 파싱
         get_line(line, &e, 1);
-        if (state == DAILY_CALENDAR){
-        // 이번 달 일정인지 확인
+        if (state == DAILY_CALENDAR){ // 일간 캘린더
+            // 일정이 오늘 포함되는지 확인
             int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
             int end_date = e.end_year * 10000 + e.end_month * 100 + e.end_day;
             int current_date = year * 10000 + month * 100 + day;
 
             if (current_date >= start_date && current_date <= end_date) {
                 x = print_event_table(&e, width, x, y_coordinate);
-                x++;
             }
         }
-        else if (state == MONTHLY_CALENDAR)
-        {
-            struct winsize wbuf;
-            // 터미널 화면정보 다시 가져오기
-                if(ioctl(0, TIOCGWINSZ, &wbuf) != -1) 
-                {
-                    if (wbuf.ws_row < 20 || wbuf.ws_col < 80){
-                        x = print_event_table(&e, width, x, y_coordinate);
-                        x++;
-                    }
-                }
+        else if (state == MONTHLY_CALENDAR) // 월간 캘린더
+        {   
+            
+            // 일정이 이번달에 포함되는지 확인
+            int days = days_in_month[month-1];
+                // 윤년이고 2월인 경우, 하루를 추가
+            if (month == 2 && is_leap_year(year)) {
+                days = 29;
+            }
+
+            int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
+            int end_date = e.end_year * 10000 + e.end_month * 100 + e.end_day;
+            int m_start_date = year * 10000 + month * 100 + 1;
+            int m_end_date = year * 10000 + month * 100 + days;
+
+            if (!(start_date > m_end_date || end_date < m_start_date))
+            {
+                x = print_event_table(&e, width, x, y_coordinate);
+                x++;
+            }
         }
         
     }
     fclose(file); // 파일 닫기
 
-    // 파일 열기
+    // 단일 일정 파일 열기
     if ((file = fopen(EVENT_FILE, "r")) == NULL) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
@@ -681,22 +742,28 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
         if(state == DAILY_CALENDAR){
             if (e.start_year == year && e.start_month == month && e.start_day == day) {
                 
-
                 x = print_event_table(&e, width, x, y_coordinate);
-                x++;
             }
         }
         else if (state == MONTHLY_CALENDAR)
         {
-            struct winsize wbuf;
-            // 터미널 화면정보 다시 가져오기
-                if(ioctl(0, TIOCGWINSZ, &wbuf) != -1) 
-                {
-                    if (wbuf.ws_row < 20 || wbuf.ws_col < 80){
-                        x = print_event_table(&e, width, x, y_coordinate);
-                        x++;
-                    }
-                }
+            // 일정이 이번달에 포함되는지 확인
+            int days = days_in_month[month-1];
+            
+            // 윤년이고 2월인 경우, 하루를 추가
+            if (month == 2 && is_leap_year(year)) {
+                days = 29;
+            }
+
+            int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
+            int m_start_date = year * 10000 + month * 100 + 1;
+            int m_end_date = year * 10000 + month * 100 + days;
+
+            if (m_start_date <= start_date && start_date <= m_end_date)
+            {
+                x = print_event_table(&e, width, x, y_coordinate);
+                x++;
+            }
         } 
     }
 
