@@ -170,13 +170,7 @@ void show_small_month(int year, int month, struct winsize *wbuf)
 	mvprintw(title_row + 2, header_col * 5 + (header_col*3 - 8) / 2, "schedule");
 	mvprintw(title_row + 2, header_col * 8 + (header_col - 4) / 2, "time");
 
-	mvhline(title_row + 3, header_col, '-', header_col * 8);
-
-	// 리스트 형식의 스케줄 좌표
-	// schedule_row = title_row + 4;
-	// schedule_col = header_col * 2;
-	// date_col = header_col;
-    // t_col = header_col * 5;
+	mvhline(title_row + 3, header_col, '-', header_col * 9);
 
 	get_event_in_table(year, month, day, header_col, title_row + 4, y_coordinate);
 
