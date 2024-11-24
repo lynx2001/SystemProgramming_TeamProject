@@ -1,27 +1,112 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <pthread.h>
+#include <unistd.h>
 #include "habit.h"
 #include "file_name.h"
+
+#include "habit_function.h"
+
+pthread_t date_check_thread;  // 날짜 확인 스레드
+int program_running = 1; 
 
 
 Habit habits[MAX_HABITS];
 int habit_count = 0;
 char last_checked_date[11]; 
 
-// 현재 날짜를 가져옴
+
+//strptime이 되지 않아서.. 따로 만든 함수
+time_t customParseDate(const char *date) {
+    struct tm tm_info = {0};
+
+    if (strlen(date) != 10 || date[4] != '-' || date[7] != '-') {
+        fprintf(stderr, "Invalid date format: %s\n", date);
+        return (time_t)-1;
+    }
+
+    char year[5], month[3], day[3];
+    strncpy(year, date, 4); year[4] = '\0';
+    strncpy(month, date + 5, 2); month[2] = '\0';
+    strncpy(day, date + 8, 2); day[2] = '\0';
+
+    tm_info.tm_year = atoi(year) - 1900;
+    tm_info.tm_mon = atoi(month) - 1;
+    tm_info.tm_mday = atoi(day);
+
+    time_t result = mktime(&tm_info);
+    if (result == -1) {
+        fprintf(stderr, "Failed to parse date: %s\n", date);
+    }
+    return result;
+}
+
+
+
+// 현재 날짜를 가져오기
 void getCurrentDate(char *date) {
     time_t now = time(NULL);
     struct tm *tm_info = localtime(&now);
     strftime(date, 11, "%Y-%m-%d", tm_info);
 }
 
+
+// 매일 is_done 값을 초기화
+void resetHabitsIfDateChanged() {
+    char current_date[11];
+    getCurrentDate(current_date);
+
+    // 날짜 차이 계산
+    time_t last_time = customParseDate(last_checked_date);
+    time_t current_time = customParseDate(current_date);
+    double diff_days = difftime(current_time, last_time) / (60 * 60 * 24);
+
+    
+    if (diff_days >= 1) {
+        printf("\033[41;37m!! 날짜가 변경되어 모든 과제가 미완료로 리셋되었습니다 !!\033[0m\n");
+
+        for (int i = 0; i < habit_count; i++) {
+            if (diff_days >= 2) {
+                // 1일 이상 건너뛴 경우 미완료된 과제의 days 리셋
+                habits[i].days = 0;
+            }
+            habits[i].is_done = 0; // 모든 과제 미완료 상태로 초기화
+        }
+
+        // 마지막 확인 날짜 갱신
+        strcpy(last_checked_date, current_date);
+
+        
+        saveHabits();
+    }
+}
+
+void *dateCheckThread(void *arg) {
+    while (program_running) {
+        sleep(10);  // 10초마다 확인
+        resetHabitsIfDateChanged();
+    }
+    return NULL;
+}
+
+int hasDateChanged() {
+    char current_date[11];
+    getCurrentDate(current_date);
+
+    if (strcmp(last_checked_date, current_date) != 0) {
+        strcpy(last_checked_date, current_date);
+        return 1; // 날짜가 변경됨 
+    }
+    return 0; 
+}
+
 // 파일에서 데이터 불러오기
 void loadHabits() {
     FILE *file = fopen(HABIT_FILE, "r");
     if (!file) {
-        //printf("파일을 열 수 없습니다. 새 파일을 생성합니다.\n");
-        getCurrentDate(last_checked_date); // 현재 날짜로 초기화
+        getCurrentDate(last_checked_date); 
         return;
     }
 
@@ -30,7 +115,7 @@ void loadHabits() {
         getCurrentDate(last_checked_date); 
     }
 
-    // 나머지 줄: 습관 데이터
+    // 나머지 줄
     while (fscanf(file, "%49s %d %d", habits[habit_count].name, &habits[habit_count].days, &habits[habit_count].is_done) == 3) {
         habit_count++;
         if (habit_count >= MAX_HABITS) break;
@@ -46,40 +131,14 @@ void saveHabits() {
         return;
     }
 
-    // 첫 줄: 마지막 확인 날짜 저장
+    // 첫 줄: 마지막 확인 날짜
     fprintf(file, "%s\n", last_checked_date);
 
-    // 나머지 줄: 습관 데이터 저장
+    // 나머지 
     for (int i = 0; i < habit_count; i++) {
         fprintf(file, "%s %d %d\n", habits[i].name, habits[i].days, habits[i].is_done);
     }
     fclose(file);
-}
-
-// 날짜가 변경되었는지 확인
-int hasDateChanged() {
-    char current_date[11];
-    getCurrentDate(current_date);
-
-    if (strcmp(last_checked_date, current_date) != 0) {
-        strcpy(last_checked_date, current_date);
-        return 1; // 날짜가 변경됨 : 다음날로 넘어감
-    }
-    return 0; // 같은날
-}
-
-// 다음날이면 is_done 값을 초기화하고, 미완료된 과제의 days 리셋
-void resetHabitsIfDateChanged() {
-    
-    if (hasDateChanged()) {
-        for (int i = 0; i < habit_count; i++) {
-            if (habits[i].is_done == 0) {
-                habits[i].days = 0; // 미완료 과제의 days 리셋
-            }
-            habits[i].is_done = 0; // 모든 과제를 미완료 상태로 초기화
-        }
-        printf("\033[41;37m!! 미완료된 과제는 연속 일수가 리셋됩니다 !!\033[0m\n");
-    }
 }
 
 void showHabits() {
@@ -138,7 +197,7 @@ void markHabitDone(const char *name) {
             return;
         }
     }
-    printf("해당 과제는 저장되어있지 않습니다.\n\n");
+    printf("%s 목록에 없는 과제 입니다.\n\n", name);
 }
 
 // 과제 삭제

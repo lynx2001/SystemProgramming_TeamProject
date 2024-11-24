@@ -10,6 +10,8 @@ int main() {
     // 프로그램 시작 시 파일에서 로드
     loadHabits();
 
+    pthread_create(&date_check_thread, NULL, dateCheckThread, NULL);
+
     printf("===습관 형성 프로그램===\n");
     
     printf("사용 방법:\n");
@@ -39,7 +41,10 @@ int main() {
             deleteHabit(name);
         } else if (strcmp(command, "show") == 0) {
             showHabits();
-        } else if (strcmp(command, "exit") == 0) {
+        }  else if (strcmp(command, "exit") == 0) {
+            // 스레드 종료 및 저장
+            program_running = 0;  // 스레드 종료 신호
+            pthread_join(date_check_thread, NULL);  // 스레드 종료 대기
             saveHabits();
             printf("프로그램을 종료합니다.\n");
             break;
