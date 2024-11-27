@@ -1,5 +1,7 @@
 #pragma once
 #include "event.h"
+#include "SchedulingErrorCheck.h"
+#include "CalculateScheduling.h"
 
 void initTime(Time* x);
 
@@ -18,3 +20,5 @@ void calDday(Event* todo, Time current);
 void calWeight(Event* todo, int importance);
 
 void printCalendar(Event* todo);
+
+void *date_checker(void* arg);

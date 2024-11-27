@@ -1,11 +1,15 @@
 #pragma once
+#ifndef CALCULATESCHEDULING_H
+#define CALCULATESCHEDULING_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include "event.h"
+#include "SchedulingErrorCheck.h"
+#include "AutoScheduling.h"
 
-time_t timer;
-struct tm* t;
+extern time_t timer;
+extern struct tm* t;
 
 void initTime(Time* x);
 
@@ -16,3 +20,7 @@ void calDday(Event* event_t, Time current);
 void calWeight(Event* event_t, int importance);
 
 int calculateStartDayOfWeek(int year, int month, int day);
+
+void updateDdayAndWeights(Event events[], int count, Time current);
+
+#endif

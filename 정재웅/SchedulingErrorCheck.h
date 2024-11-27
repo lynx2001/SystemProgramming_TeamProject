@@ -4,6 +4,8 @@
 #include <time.h>
 #include <math.h>
 #include "event.h"
+#include "CalculateScheduling.h"
+#include "AutoScheduling.h"
 
 int validateDate(int year, int month, int day);
 

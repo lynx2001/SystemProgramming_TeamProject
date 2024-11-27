@@ -2,33 +2,28 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include "event.h"
+#include "SchedulingErrorCheck.h"
 
-// ³¯Â¥ ÀÔ·Â ¹Þ¾ÒÀ» ¶§ À¯È¿¼º °Ë»ç
 int validateDate(int year, int month, int day) {
     if (year < 0 || month < 1 || month > 12 || day < 1 || day > daysInMonth(month, year)) {
-        fprintf(stderr, "³¯Â¥ Çü½Ä ¶Ç´Â ¹üÀ§°¡ ¿Ã¹Ù¸£Áö ¾Ê½À´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØ ÁÖ¼¼¿ä.\n");
+        fprintf(stderr, "ï¿½ï¿½Â¥ ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã¹Ù¸ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½. ï¿½Ù½ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½.\n");
         return 0;
     }
     return 1;
 }
 
-
-// »ç¿ëÀÚ ÀÔ·Â À¯È¿¼º °Ë»ç (0 ~ 5 »çÀÌÀÇ °ªÀÌ ¾Æ´Ò ¶§)
 int validateImportance(int importance) {
     if (importance < 0 || importance > 5) {
-        fprintf(stderr, "Áß¿äµµ´Â 0¿¡¼­ 5 »çÀÌÀÇ °ªÀÌ¾î¾ß ÇÕ´Ï´Ù. ´Ù½Ã ÀÔ·ÂÇØ ÁÖ¼¼¿ä.\n");
+        fprintf(stderr, "ï¿½ß¿äµµï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ 5 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Õ´Ï´ï¿½. ï¿½Ù½ï¿½ ï¿½Ô·ï¿½ï¿½ï¿½ ï¿½Ö¼ï¿½ï¿½ï¿½.\n");
         return 0;
     }
     return 1;
 }
 
-// À±³â °è»ê
 int isLeapYear(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
-// °¢ ¿ùÀÇ ÀÏ¼ö À¯È¿¼º
 int daysInMonth(int month, int year) {
     switch (month) {
     case 4: case 6: case 9: case 11:
@@ -40,19 +35,17 @@ int daysInMonth(int month, int year) {
     }
 }
 
-
-// Interval À¯È¿¼º °è»ê - Error: Start > End 
 void intervalError(Time start, Time end) {
     if (start.year > end.year) {
-        fprintf(stderr, "½ÃÀÛ¿¬µµ°¡ ¸¶°¨¿¬µµº¸´Ù ´Ê½À´Ï´Ù.\n");
+        fprintf(stderr, "ï¿½ï¿½ï¿½Û¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.\n");
         exit(1);
     }
     else if (start.year == end.year && start.day > end.day) {
-        fprintf(stderr, "½ÃÀÛ¿ùÀÌ ¸¶°¨¿ùº¸´Ù ´Ê½À´Ï´Ù.\n");
+        fprintf(stderr, "ï¿½ï¿½ï¿½Û¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.\n");
         exit(1);
     }
     else if (start.year == end.year && start.month == end.month && start.day > end.day) {
-        fprintf(stderr, "½ÃÀÛÀÏÀÌ ¸¶°¨ÀÏº¸´Ù ´Ê½À´Ï´Ù.\n");
+        fprintf(stderr, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ïºï¿½ï¿½ï¿½ ï¿½Ê½ï¿½ï¿½Ï´ï¿½.\n");
         exit(1);
     }
     else {

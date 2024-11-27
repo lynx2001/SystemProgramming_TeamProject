@@ -5,7 +5,7 @@
 
 #define MAX_EVENTS 100
 
-typedef struct {    // ½Ã°£ °ü¸®
+typedef struct {    // ì‹œê°„ ê´€ë¦¬
     int year;
     int month;
     int day;
@@ -14,20 +14,21 @@ typedef struct {    // ½Ã°£ °ü¸®
 } Time;
 
 typedef struct {
-    int id;                 // °íÀ¯ id - »èÁ¦, ¼öÁ¤ µî ÀÌ¿ë     >> PRIMARY_KEY
-    char name[50];          // ÀÌ¸§(Á¦¸ñ)
-    Time date_start;    // ½ÃÀÛÀÏ
-    Time date_end;      // Á¾·áÀÏ
-    double interval;        // ¸¶°¨ÀÏ - ½ÃÀÛÀÏ (½Ã°£ Á¦¿Ü)
-    double Dday;            // ¸¶°¨ÀÏ - ÇöÀçÀÏ (½Ã°£ Á¦¿Ü)
-    double weight;          // ¿ì¼±¼øÀ§
-    double quantity;        // ºĞ·®
-    char details[100];      // ¼¼ºÎ»çÇ×(ÂªÀº ¸Ş¸ğ)
+    int id;                 // ê³ ìœ  id - ì‚­ì œ, ìˆ˜ì • ë“± ì´ìš©     >> PRIMARY_KEY
+    char name[50];          // ì´ë¦„(ì œëª©)
+    Time date_start;    // ì‹œì‘ì¼
+    Time date_end;      // ì¢…ë£Œì¼
+    double interval;        // ë§ˆê°ì¼ - ì‹œì‘ì¼ (ì‹œê°„ ì œì™¸)
+    double Dday;            // ë§ˆê°ì¼ - í˜„ì¬ì¼ (ì‹œê°„ ì œì™¸)
+    double weight;          // ìš°ì„ ìˆœìœ„
+    double quantity;        // ë¶„ëŸ‰
+    char details[100];      // ì„¸ë¶€ì‚¬í•­(ì§§ì€ ë©”ëª¨)
+    int importance;
 } Event;
 
 extern Event events[MAX_EVENTS];
 extern int event_count;
 
-extern int last_id;     // ¸¶Áö¸· id °ª (id °ª ÀÚµ¿»ı¼ºÀ» À§ÇÔ)
+extern int last_id;     // ë§ˆì§€ë§‰ id ê°’ (id ê°’ ìë™ìƒì„±ì„ ìœ„í•¨)
 
 #endif
