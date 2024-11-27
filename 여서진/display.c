@@ -2,7 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include "display.h"
-#include "grobal.h"
+#include "global.h"
 #include "habit.h"
 
 // 메뉴 출력
