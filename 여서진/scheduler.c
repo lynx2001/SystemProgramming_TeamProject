@@ -58,9 +58,11 @@ void add_schedule() {
 }
 
 void scheduler_submenu() {
-    int choice;
-
-    while (1) {
+	is_in_submenu = true;  // 서브화면 상태 진입
+	int choice;
+	current_submenu = SCHEDULER_SUBMENU;  // 현재 서브화면 설정
+    
+	while (1) {
         clear();
         int height, width;
         getmaxyx(stdscr, height, width);
@@ -77,5 +79,6 @@ void scheduler_submenu() {
             break; // 초기 화면으로 복귀
         }
     }
+	current_submenu = 0;  // 서브화면 상태 초기화
+	is_in_submenu = false;  // 서브화면 상태 종료
 }
-
