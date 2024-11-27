@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lcurses
+LDFLAGS = -lcurses -lpthread
 # 타겟 파일 이름
 TARGET = Scheduling
 
