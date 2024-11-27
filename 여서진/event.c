@@ -2,57 +2,74 @@
 #include <string.h>
 #include "event.h"
 #include "global.h"
+#include "util.h"
 
 Event events[MAX_EVENTS];
 int event_count = 0;  // 현재 저장된 이벤트 개수
 int last_id = 0;      // 마지막으로 부여된 이벤트 ID
 
-// 팝업 메시지 출력 함수
-void popup_message(const char *message) {
-    int height, width;
-    getmaxyx(stdscr, height, width);  // 현재 터미널 크기 가져오기
-
-    // 팝업 윈도우 생성
-    WINDOW *popup = newwin(5, width / 2, height / 2 - 2, width / 4);
-    box(popup, 0, 0);  // 테두리 그리기
-    mvwprintw(popup, 2, (width / 4 - strlen(message)) / 2, "%s", message);  // 메시지 출력
-    wrefresh(popup);  // 화면 갱신
-
-    getch();  // 사용자 입력 대기
-    delwin(popup);  // 팝업 윈도우 삭제
-}
-
-// 새로운 일정 추가 함수
 void add_event() {
     char title[50], details[100];
     int year, month, day, hour, minute;
     int reminder;
 
     clear();
-    echo();  // 사용자 입력 표시 활성화
+    echo();
 
-    // 사용자로부터 일정 정보를 입력받음
     mvprintw(2, 10, "Add Event:");
+
+    // 제목 입력
     mvprintw(4, 12, "Enter event title: ");
-    getstr(title);  // 제목 입력
+    getstr(title);
 
-    mvprintw(5, 12, "Enter start date (YYYY MM DD): ");
-    scanw("%d %d %d", &year, &month, &day);  // 날짜 입력
+    // 날짜 입력 검증
+    while (1) {
+        mvprintw(5, 12, "Enter start date (YYYY MM DD): ");
+        clrtoeol();  // 현재 줄 지우기
+        int result = scanw("%d %d %d", &year, &month, &day);
 
-    mvprintw(6, 12, "Enter start time (HH MM): ");
-    scanw("%d %d", &hour, &minute);  // 시간 입력
+        if (result == 3 && validateDate(year, month, day)) {
+            break;  // 유효한 입력
+        }
 
+        popup_message("Invalid date. Please try again.");  // 팝업 메시지 출력
+    }
+
+    // 시간 입력 검증
+    while (1) {
+        mvprintw(6, 12, "Enter start time (HH MM): ");
+        clrtoeol();  // 현재 줄 지우기
+        int result = scanw("%d %d", &hour, &minute);
+
+        if (result == 2 && validateTime(hour, minute)) {
+            break;  // 유효한 입력
+        }
+
+        popup_message("Invalid time. Please try again.");  // 팝업 메시지 출력
+    }
+
+    // 세부사항 입력
     mvprintw(9, 12, "Enter details: ");
-    getstr(details);  // 세부사항 입력
+    getstr(details);
 
-    mvprintw(10, 12, "Set reminder (1: Yes, 0: No): ");
-    scanw("%d", &reminder);  // 리마인더 설정 여부 입력
+    // 리마인더 입력 검증
+    while (1) {
+        mvprintw(10, 12, "Set reminder (1: Yes, 0: No): ");
+        clrtoeol();  // 현재 줄 지우기
+        int result = scanw("%d", &reminder);
 
-    noecho();  // 사용자 입력 표시 비활성화
+        if (result == 1 && (reminder == 0 || reminder == 1)) {
+            break;  // 유효한 입력
+        }
+
+        popup_message("Invalid input. Please enter 1 or 0.");  // 팝업 메시지 출력
+    }
+
+    noecho();
 
     // 새로운 이벤트 데이터 저장
     Event new_event;
-    new_event.id = ++last_id;  // 고유 ID 자동 증가
+    new_event.id = ++last_id;
     strncpy(new_event.title, title, sizeof(new_event.title));
     new_event.date_start.year = year;
     new_event.date_start.month = month;
@@ -61,7 +78,6 @@ void add_event() {
     new_event.date_start.minute = minute;
     strncpy(new_event.details, details, sizeof(new_event.details));
 
-    // 이벤트 배열에 추가
     events[event_count++] = new_event;
 
     popup_message("Event successfully added!");  // 성공 메시지 출력
@@ -148,9 +164,11 @@ void delete_event() {
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
     int choice;
-
-    while (1) {
-        clear();
+	is_in_submenu = true;  // 서브화면 상태 진입
+	current_submenu = EVENT_SUBMENU;  // 현재 서브화면 설정
+	
+	while (1) {
+		clear();
         int height, width;
         getmaxyx(stdscr, height, width);  // 현재 터미널 크기 가져오기
 
@@ -173,5 +191,7 @@ void event_submenu() {
             break;  // 초기화면 복귀
         }
     }
+	
+	current_submenu = 0;  // 서브화면 상태 초기화	
+	is_in_submenu = false;  // 서브화면 상태 종료
 }
-
