@@ -118,8 +118,10 @@ void mark_habit_success() {
 // 습관 관리 서브 메뉴
 void habit_submenu() {
     int choice;
-
-    while (1) {
+	is_in_submenu = true;  // 서브화면 상태 진입
+	current_submenu = HABIT_SUBMENU;  // 현재 서브화면 설정
+    
+	while (1) {
         clear();
         int height, width;
         getmaxyx(stdscr, height, width);
@@ -145,4 +147,7 @@ void habit_submenu() {
             break;
         }
     }
+	
+	current_submenu = 0;  // 서브화면 상태 초기화
+	is_in_submenu = false;  // 서브화면 상태 종료
 }
