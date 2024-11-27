@@ -27,7 +27,9 @@ void draw_calendar_screen() {
     int height, width;
     getmaxyx(stdscr, height, width);  // 현재 터미널 크기 가져오기
 
-    // 달력 형식 텍스트 위치 (상단 기준 마진 5)
+	(void)height;  // 경고 방지: 높이를 명시적으로 무시
+   
+	// 달력 형식 텍스트 위치 (상단 기준 마진 5)
     int calendar_text_y = 5;
 
     // 달력 형식 텍스트 출력
@@ -40,4 +42,3 @@ void change_calendar_format() {
     current_format = (current_format + 1) % 3; // MONTHLY -> WEEKLY -> DAILY -> MONTHLY
     draw_calendar_screen(); // 화면 갱신
 }
-
