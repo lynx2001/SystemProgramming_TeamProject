@@ -6,12 +6,9 @@
 #include <unistd.h>
 #include "habit.h"
 #include "file_name.h"
+//#include "date_check.h"
 
 #include "habit_function.h"
-
-pthread_t date_check_thread;  // 날짜 확인 스레드
-int program_running = 1; 
-
 
 Habit habits[MAX_HABITS];
 int habit_count = 0;
@@ -53,6 +50,24 @@ void getCurrentDate(char *date) {
 }
 
 
+// 데이터를 파일에 저장
+void saveHabits() {
+    FILE *file = fopen(HABIT_FILE, "w");
+    if (!file) {
+        printf("파일을 저장할 수 없습니다.\n");
+        return;
+    }
+
+    // 첫 줄: 마지막 확인 날짜
+    fprintf(file, "%s\n", last_checked_date);
+
+    // 나머지 
+    for (int i = 0; i < habit_count; i++) {
+        fprintf(file, "%s %d %d\n", habits[i].name, habits[i].days, habits[i].is_done);
+    }
+    fclose(file);
+}
+
 // 매일 is_done 값을 초기화
 void resetHabitsIfDateChanged() {
     char current_date[11];
@@ -65,7 +80,7 @@ void resetHabitsIfDateChanged() {
 
     
     if (diff_days >= 1) {
-        printf("\033[41;37m!! 날짜가 변경되어 모든 과제가 미완료로 리셋되었습니다 !!\033[0m\n");
+        printf("\033[41;37m!! 날짜 변경, 미완료된 과제는 DAY가 리셋됩니다 !!\033[0m\n");
 
         for (int i = 0; i < habit_count; i++) {
             if (diff_days >= 2) {
@@ -78,29 +93,11 @@ void resetHabitsIfDateChanged() {
         // 마지막 확인 날짜 갱신
         strcpy(last_checked_date, current_date);
 
-        
         saveHabits();
     }
 }
 
-void *dateCheckThread(void *arg) {
-    while (program_running) {
-        sleep(10);  // 10초마다 확인
-        resetHabitsIfDateChanged();
-    }
-    return NULL;
-}
 
-int hasDateChanged() {
-    char current_date[11];
-    getCurrentDate(current_date);
-
-    if (strcmp(last_checked_date, current_date) != 0) {
-        strcpy(last_checked_date, current_date);
-        return 1; // 날짜가 변경됨 
-    }
-    return 0; 
-}
 
 // 파일에서 데이터 불러오기
 void loadHabits() {
@@ -123,23 +120,7 @@ void loadHabits() {
     fclose(file);
 }
 
-// 데이터를 파일에 저장
-void saveHabits() {
-    FILE *file = fopen(HABIT_FILE, "w");
-    if (!file) {
-        printf("파일을 저장할 수 없습니다.\n");
-        return;
-    }
 
-    // 첫 줄: 마지막 확인 날짜
-    fprintf(file, "%s\n", last_checked_date);
-
-    // 나머지 
-    for (int i = 0; i < habit_count; i++) {
-        fprintf(file, "%s %d %d\n", habits[i].name, habits[i].days, habits[i].is_done);
-    }
-    fclose(file);
-}
 
 void showHabits() {
     printf("=== 오늘 해야 할 과제 ===\n");
@@ -197,7 +178,7 @@ void markHabitDone(const char *name) {
             return;
         }
     }
-    printf("%s 목록에 없는 과제 입니다.\n\n", name);
+    printf("%s 해당 과제를 찾을 수 없습니다.\n\n", name);
 }
 
 // 과제 삭제

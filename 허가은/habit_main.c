@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <string.h>
-
+#include "date_check.h"
 #include "habit_function.h"
 
+void onDateChanged() {
+    resetHabitsIfDateChanged();
+}
 
 int main() {
     char command[10], name[30];
@@ -10,7 +13,8 @@ int main() {
     // 프로그램 시작 시 파일에서 로드
     loadHabits();
 
-    pthread_create(&date_check_thread, NULL, dateCheckThread, NULL);
+    initializeDateMonitor(onDateChanged);
+    startDateMonitor();
 
     printf("===습관 형성 프로그램===\n");
     
@@ -42,9 +46,7 @@ int main() {
         } else if (strcmp(command, "show") == 0) {
             showHabits();
         }  else if (strcmp(command, "exit") == 0) {
-            // 스레드 종료 및 저장
-            program_running = 0;  // 스레드 종료 신호
-            pthread_join(date_check_thread, NULL);  // 스레드 종료 대기
+            stopDateMonitor(); // 스레드 안전 종료
             saveHabits();
             printf("프로그램을 종료합니다.\n");
             break;
