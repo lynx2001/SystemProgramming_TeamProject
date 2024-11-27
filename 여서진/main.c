@@ -1,6 +1,6 @@
 #include <ncurses.h>
 #include <signal.h>
-#include "grobal.h"
+#include "global.h"
 #include "calendar.h"
 #include "display.h"
 #include "event.h"
