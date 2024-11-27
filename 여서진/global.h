@@ -5,6 +5,13 @@
 #define EVENT_FILE "event.txt"
 #define ID_FILE "last_id.txt"
 
+// 서브화면 상수 정의
+#define EVENT_SUBMENU 1
+#define HABIT_SUBMENU 2
+#define SCHEDULER_SUBMENU 3
+
+#include <stdbool.h>
+
 typedef struct {
     int year;
     int month;
@@ -48,5 +55,8 @@ extern int last_id;
 // popup_message 함수 선언
 void popup_message(const char *message);
 
-#endif
+// 전역 변수 선언 (extern)
+extern bool is_in_submenu;
+extern int current_submenu;
 
+#endif
