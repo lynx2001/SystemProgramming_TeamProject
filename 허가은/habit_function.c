@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include "habit.h"
 #include "file_name.h"
-//#include "date_check.h"
 
 #include "habit_function.h"
 
@@ -20,7 +19,7 @@ time_t customParseDate(const char *date) {
     struct tm tm_info = {0};
 
     if (strlen(date) != 10 || date[4] != '-' || date[7] != '-') {
-        fprintf(stderr, "Invalid date format: %s\n", date);
+        //fprintf(stderr, "Invalid date format: %s\n", date);
         return (time_t)-1;
     }
 
@@ -80,13 +79,15 @@ void resetHabitsIfDateChanged() {
 
     
     if (diff_days >= 1) {
-        printf("\033[41;37m!! 날짜 변경, 미완료된 과제는 DAY가 리셋됩니다 !!\033[0m\n");
+        
+        printf("\033[41;37m!! 미완료된 과제는 DAY가 리셋됩니다 !!\033[0m\n");
 
         for (int i = 0; i < habit_count; i++) {
             if (diff_days >= 2) {
                 // 1일 이상 건너뛴 경우 미완료된 과제의 days 리셋
                 habits[i].days = 0;
             }
+            if(habits[i].is_done==0) habits[i].days = 0;
             habits[i].is_done = 0; // 모든 과제 미완료 상태로 초기화
         }
 
@@ -95,6 +96,25 @@ void resetHabitsIfDateChanged() {
 
         saveHabits();
     }
+}
+
+void signalresetHabits(){
+    printf("\033[41;37m!! 날짜 변경이 감지되었습니다. 데이터를 저장 후 종료합니다 !!\033[0m\n");
+    char current_date[11];
+    getCurrentDate(current_date);
+    
+    for (int i = 0; i < habit_count; i++) {
+            if(habits[i].is_done==0) habits[i].days = 0;
+
+            habits[i].is_done = 0; // 모든 과제 미완료 상태로 초기화
+        }
+        // 마지막 확인 날짜 갱신
+        strcpy(last_checked_date, current_date);
+
+        saveHabits();
+
+    printf("데이터 저장 완료. 프로그램을 종료합니다.\n");
+    _exit(0); // //시그널 발생시 프로그램 종료
 }
 
 
@@ -119,7 +139,6 @@ void loadHabits() {
     }
     fclose(file);
 }
-
 
 
 void showHabits() {

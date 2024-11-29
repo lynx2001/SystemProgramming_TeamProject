@@ -16,6 +16,5 @@ void addHabit(const char *name);
 void markHabitDone(const char *name);
 void deleteHabit(const char *name);
 void showHabits();
-void *dateCheckThread(void *arg);
-
+void signalresetHabits();
 #endif 

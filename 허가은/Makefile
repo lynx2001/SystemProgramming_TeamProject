@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -g 
-LDFLAGS = -lcurses
+CFLAGS = -Wall 
+LDFLAGS = -lcurses -p
 # 타겟 파일 이름
 TARGET = Habit
 

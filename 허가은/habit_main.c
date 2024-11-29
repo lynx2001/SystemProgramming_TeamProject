@@ -1,19 +1,37 @@
+#define _POSIX_C_SOURCE 200809L
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
+#include <pthread.h>
+#include <unistd.h>
 #include "date_check.h"
 #include "habit_function.h"
+#define HABIT_FILE "habit.txt"
 
-void onDateChanged() {
-    resetHabitsIfDateChanged();
+void handleDateChangeSignal(int signal) {
+    if (signal == SIGUSR1) {
+        signalresetHabits(); //시그널 발생시 수행해야할 함수(동작)
+    }
 }
+
 
 int main() {
     char command[10], name[30];
 
-    // 프로그램 시작 시 파일에서 로드
-    loadHabits();
 
-    initializeDateMonitor(onDateChanged);
+    struct sigaction new_handler;
+
+    new_handler.sa_sigaction = handleDateChangeSignal;//시그널발생시 처리 함수
+    new_handler.sa_flags = 0; //일단 0으로 세팅
+    sigemptyset(&new_handler.sa_mask); 
+    
+    if (sigaction(SIGUSR1, &new_handler, NULL) == -1) {
+        perror("sigaction error");
+        return 1;
+    }
+    ////////////////////////////
+    loadHabits();
+    initializeDateMonitor();
     startDateMonitor();
 
     printf("===습관 형성 프로그램===\n");
@@ -27,9 +45,7 @@ int main() {
     printf("---------------------\n\n");
 
     while (1) {
-        // 날짜 변경 확인 및 초기화
-        resetHabitsIfDateChanged();
-
+        fflush(stdin);
         printf("\n> ");
         scanf("%s", command);
 
@@ -46,7 +62,6 @@ int main() {
         } else if (strcmp(command, "show") == 0) {
             showHabits();
         }  else if (strcmp(command, "exit") == 0) {
-            stopDateMonitor(); // 스레드 안전 종료
             saveHabits();
             printf("프로그램을 종료합니다.\n");
             break;
