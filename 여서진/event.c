@@ -22,7 +22,7 @@ void add_event() {
     // 제목 입력
     if (get_input("Enter event title: ", title, sizeof(title)) == -1) return;
 
-	// 날짜 입력
+    // 날짜 입력
     while (1) {
         if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
         if (sscanf(buffer, "%d %d %d", &year, &month, &day) == 3 && validateDate(year, month, day)) {
