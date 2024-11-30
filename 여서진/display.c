@@ -31,7 +31,7 @@ static void draw_horizontal_menu() {
 	(void)height;  // 높이를 명시적으로 무시
     
 	const char *menu_items[] = {"1. Change Calendar Format", "2. Event Management",
-                                "3. Habit Management", "4. Scheduler Management", "q. Quit"};
+                                "3. Habit Management", "q. Quit"};
     int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
     int menu_y = 10;
     int spacing = width / (menu_count + 1);
@@ -50,8 +50,7 @@ static void draw_vertical_menu() {
     mvprintw(5, 5, "1. Change Calendar Format");
     mvprintw(6, 5, "2. Event Management");
     mvprintw(7, 5, "3. Habit Management");
-    mvprintw(8, 5, "4. Scheduler Management");
-    mvprintw(9, 5, "q. Quit");
+    mvprintw(8, 5, "q. Quit");
     refresh();
 }
 
