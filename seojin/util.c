@@ -37,7 +37,6 @@ void popup_message(const char *message) {
     overwrite(backup, stdscr);  // 백업한 내용을 현재 화면에 복사
     delwin(backup);             // 백업 윈도우 삭제
 	refresh();                  // 화면 갱신
-	mvprintw(LINES - 2, 0, "DEBUG: popup_message_called set to true");
 }
 
 
@@ -116,7 +115,6 @@ int get_input(const char *prompt, char *buffer, int size) {
         clrtoeol();
         refresh();
 		popup_message_called = false;
-	    mvprintw(LINES - 2, 0, "DEBUG: popup_message_called set to FALSE");
 	} else {
 		current_y += 2;
 	}

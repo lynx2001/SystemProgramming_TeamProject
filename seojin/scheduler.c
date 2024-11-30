@@ -5,7 +5,7 @@
 #include "scheduler.h"
 
 void add_schedule() {
-    char title[50], details[100];
+    char title[50], details[100], buffer[20];
     int year_start, month_start, day_start, year_end, month_end, day_end;
     double weight;
     double quantity;
