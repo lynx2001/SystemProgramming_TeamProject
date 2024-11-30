@@ -2,6 +2,7 @@
 #include <string.h>
 #include "habit.h"
 #include "global.h"
+#include "util.h"
 
 Habit habits[MAX_HABITS];
 int habit_count = 0;
@@ -15,9 +16,9 @@ void add_habit() {
     echo();
 
     mvprintw(2, 10, "Add Habit:");
-    mvprintw(4, 12, "Enter habit name: ");
-    getstr(name);
-
+	
+	// 습관 이름 입력
+    if (get_input("Enter habit name: ", name, sizeof(name)) == -1) return;
     noecho();
 
     Habit new_habit;
@@ -118,8 +119,6 @@ void mark_habit_success() {
 // 습관 관리 서브 메뉴
 void habit_submenu() {
     int choice;
-	is_in_submenu = true;  // 서브화면 상태 진입
-	current_submenu = HABIT_SUBMENU;  // 현재 서브화면 설정
     
 	while (1) {
         clear();
@@ -147,7 +146,4 @@ void habit_submenu() {
             break;
         }
     }
-	
-	current_submenu = 0;  // 서브화면 상태 초기화
-	is_in_submenu = false;  // 서브화면 상태 종료
 }
