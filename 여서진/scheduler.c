@@ -1,7 +1,8 @@
 #include <ncurses.h>
 #include <string.h>
-#include "scheduler.h"
 #include "global.h"
+#include "util.h"
+#include "scheduler.h"
 
 void add_schedule() {
     char title[50], details[100];
@@ -14,8 +15,6 @@ void add_schedule() {
     echo();
 
     mvprintw(2, 10, "Add Schedule:");
-    mvprintw(4, 12, "Enter schedule title: ");
-    getstr(title);
 
     mvprintw(5, 12, "Enter start date (YYYY MM DD): ");
     scanw("%d %d %d", &year, &month, &day);
@@ -55,30 +54,4 @@ void add_schedule() {
     events[event_count++] = new_event;
 
     popup_message("Schedule successfully added!");
-}
-
-void scheduler_submenu() {
-	is_in_submenu = true;  // 서브화면 상태 진입
-	int choice;
-	current_submenu = SCHEDULER_SUBMENU;  // 현재 서브화면 설정
-    
-	while (1) {
-        clear();
-        int height, width;
-        getmaxyx(stdscr, height, width);
-
-        mvprintw(height / 2 - 2, (width - 25) / 2, "1. Add Schedule");
-        mvprintw(height / 2, (width - 25) / 2, "2. Back to Main Menu");
-
-        refresh();
-        choice = getch();
-
-        if (choice == '1') {
-            add_schedule(); // 일정 추가
-        } else if (choice == '2') {
-            break; // 초기 화면으로 복귀
-        }
-    }
-	current_submenu = 0;  // 서브화면 상태 초기화
-	is_in_submenu = false;  // 서브화면 상태 종료
 }
