@@ -65,36 +65,37 @@ int get_start_day_of_month(int year, int month) {
 void get_line(char *line, struct info* e) {
     char *token = strtok(line, "|");
 
-    token = strtok(NULL, "|"); // 일정 이름
-    strcpy(e->event_name, token);
+    // 일정 이름
+    token = strtok(NULL, "|");
+    if (token != NULL)
+        strncpy(e->event_name, token, sizeof(e->event_name) - 1);
 
-    token = strtok(NULL, "|"); // 시작 날짜
-    if (token != NULL) 
+
+    // 시작 날짜
+    token = strtok(NULL, "|");
+    if (token != NULL) {
         sscanf(token, "%4d-%2d-%2d %5s", &e->start_year, &e->start_month, &e->start_day, e->start_time);
-
-    token = strtok(NULL, "|"); // 종료 날짜
+    } 
+    // 종료 날짜
+    token = strtok(NULL, "|");
     if (token != NULL) {
         sscanf(token, "%4d-%2d-%2d %5s", &e->end_year, &e->end_month, &e->end_day, e->end_time);
-
-    } else {
-        e->end_year = 0; e->end_month = 0; e->end_day = 0; // 종료일이 없는 경우 초기화
-        strcpy(e->end_time, "");
     }
 
-    token = strtok(NULL, "|"); 
+    // 메모
+    for (int i = 0; i < 4; i++) { // 필요 없는 데이터 건너뜀
+        token = strtok(NULL, "|");
+    }
+
     token = strtok(NULL, "|");
-    token = strtok(NULL, "|"); 
-    token = strtok(NULL, "|"); 
-
-
-    token = strtok(NULL, "|"); // 메모
     if (token != NULL) {
         strncpy(e->memo, token, sizeof(e->memo) - 1);
         e->memo[sizeof(e->memo) - 1] = '\0'; // 널 종단 보장
+    } else {
+        strcpy(e->memo, "");
     }
-    else 
-        strcpy(e->memo, "");    
 }
+
 
 
 // 일정 출력이 가능한 칸 찾기
@@ -167,16 +168,19 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
     if (state == DAILY_CALENDAR)
     {
         mvprintw(x, y_coordinate[0], "%s", name);
-        if (event->end_month > 0)
-            mvprintw(x, y_coordinate[1], "%s - %s", event->start_time, event->end_time);
-        else
-            mvprintw(x, y_coordinate[1], "%s", event->start_time);
-
+        // 시작시간, 종료시간이 표기되어 있는 경우
+        if (strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") != 0)  
+            mvprintw(x, y_coordinate[1] + width / 2 - 6, "%s~%s", event->start_time, event->end_time);
+        // 시작시간만 표기된 경우
+        else if(strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") == 0) 
+            mvprintw(x, y_coordinate[1] + width / 2 - 6, "%s~", event->start_time);
+        // 시간이 표기되어 있지 않은 경우
+        else if(strcmp(event->start_time, "24:00") == 0) 
+            mvprintw(x, y_coordinate[1] + width / 2 - 1, "-");
 
         // 메모을 칸 크기에 맞추어 출력
         if(strlen(event->memo) > 0)
         {
-    
             for (int i = 0; i < strlen(event->memo); i += width * 2)
             {
                 // 화면의 높이를 초과하면 중단
@@ -184,7 +188,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
                     break;
                 }
 
-                mvwprintw(stdscr, x, y_coordinate[2], "%.*s", width * 2, &event->memo[i]);
+                mvwprintw(stdscr, x, y_coordinate[2] + 1, "%.*s", width * 2, &event->memo[i]);
                 x++;
             }
         }
@@ -193,19 +197,28 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
     }
     else if (state == MONTHLY_CALENDAR) // 표 형식의 월 기준 캘린더인 경우
     {
-        if (event->end_day == 0)
+        // 단일일정인 경우
+        if (event->start_year == event->end_year &&
+            event->start_month == event->end_month &&
+            event->start_day == event->end_day)
             mvprintw(x, y_coordinate[0], "%4d-%02d-%02d", event->start_year, event->start_month, event->start_day);
+        // 연속 일정의 경우
         else
-            mvprintw(x, y_coordinate[0], "%4d-%02d-%02d ~ %4d-%02d-%02d", 
+            mvprintw(x, y_coordinate[0], "%4d-%02d-%02d~%4d-%02d-%02d", 
             event->start_year, event->start_month, event->start_day, event->end_year, event->end_month, event->end_day);
 
 
         mvprintw(x, y_coordinate[1], "%s", event->event_name);
         
-        if (event->end_month > 0)
-            mvprintw(x, y_coordinate[2], "%s - %s", event->start_time, event->end_time);
-        else
-            mvprintw(x, y_coordinate[2], "%s", event->start_time);
+        // 시작시간, 종료시간이 표기되어 있는 경우
+        if (strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") != 0)  
+            mvprintw(x, y_coordinate[2], "%s~%s", event->start_time, event->end_time);
+        // 시작시간만 표기된 경우
+        else if(strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") == 0) 
+            mvprintw(x, y_coordinate[2], "%s~", event->start_time);
+        // 시간이 표기되어 있지 않은 경우
+        else if(strcmp(event->start_time, "24:00") == 0) 
+            mvprintw(x, y_coordinate[2] + width / 2, "-");
 
     }
 
@@ -442,11 +455,11 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
     int n_char, index = 0;
 
     // 파일 열기
-    int fd = open(EVENT_FILE2, O_RDONLY);
+    int fd = open(EVENT_FILE, O_RDONLY);
     if (fd == -1) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
-        perror(EVENT_FILE2);
+        perror(EVENT_FILE);
         exit(1);
     }
 
@@ -455,9 +468,17 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
         if (n_char == 0 || ch == '\n' || index >= 255) {
             line[index] = '\0'; 
             index = 0;
-
+        
             // 한 줄 파싱
             get_line(line, &e);
+
+            // 연속일정인지 확인
+            if (e.start_year == e.end_year && e.start_month == e.end_month && e.start_day == e.end_day){
+                if (n_char == 0)
+                    break;
+                else
+                    continue;
+            }
 
             // 이번 달 일정인지 확인
             if ((e.start_year == year && e.start_month == month) || (e.end_year == year && e.end_month == month)) {
@@ -512,14 +533,14 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
 
     if (n_char == -1) {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         exit(1);
     }
 
     if (close(fd) == -1) // 파일 닫기
     {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         endwin();
     }
 }
@@ -547,6 +568,15 @@ void get_single_event(int year, int month, int start_wday, int width, int x_coor
             index = 0;
 
             get_line(line, &e);
+
+            // 단일일정인지 확인
+            if (e.start_year != e.end_year || e.start_month != e.end_month || e.start_day != e.end_day) 
+            {
+                if (n_char == '\0')
+                    break;
+                else
+                    continue;
+            }
 
             // 이번 달 일정인지 확인
             if (e.start_year == year && e.start_month == month) {
@@ -590,11 +620,11 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
     int n_char, index = 0;
 
     // 파일 열기
-    int fd = open(EVENT_FILE2, O_RDONLY);
+    int fd = open(EVENT_FILE, O_RDONLY);
     if (fd == -1) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
-        perror(EVENT_FILE2);
+        perror(EVENT_FILE);
         exit(1);
     }
 
@@ -606,6 +636,15 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
 
             // 한 줄 파싱
             get_line(line, &e);
+
+            // 연속일정인지 확인
+            if (e.start_year == e.end_year && e.start_month == e.end_month && e.start_day == e.end_day)
+            {
+                if (n_char == '\0')
+                    break;
+                else
+                    continue;
+            }
 
             // 일정이 현재 주에 포함되는지 확인
             int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
@@ -697,14 +736,14 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
 
     if (n_char == -1) {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         exit(1);
     }
 
     if (close(fd) == -1) // 파일 닫기
     {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         endwin();
     }
 
@@ -725,6 +764,15 @@ void get_event_week(int year, int month, int start_day, int end_day, int width, 
 
             // 한 줄 파싱
             get_line(line, &e);
+
+            // 단일일정인지 확인
+            if (e.start_year != e.end_year || e.start_month != e.end_month || e.start_day != e.end_day)
+            {
+                if (n_char == '\0')
+                    break;
+                else
+                    continue;
+            }
 
             if (start_day < end_day) // 달이 넘어가는 주가 아닌 경우
             {
@@ -796,11 +844,11 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
     int n_char, index = 0;
 
     // 파일 열기
-    int fd = open(EVENT_FILE2, O_RDONLY);
+    int fd = open(EVENT_FILE, O_RDONLY);
     if (fd == -1) {
         endwin();
         fprintf(stderr, "Error: 일정을 불러올 수 없습니다.\n");
-        perror(EVENT_FILE2);
+        perror(EVENT_FILE);
         exit(1);
     }
 
@@ -812,6 +860,16 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
 
             // 한 줄 파싱
             get_line(line, &e);
+
+            // 연속일정인지 확인
+            if (e.start_year == e.end_year && e.start_month == e.end_month && e.start_day == e.end_day)
+            {
+                if (n_char == '\0')
+                    break;
+                else
+                    continue;
+            }
+
             if (state == DAILY_CALENDAR){ // 일간 캘린더
                 // 일정이 오늘 포함되는지 확인
                 int start_date = e.start_year * 10000 + e.start_month * 100 + e.start_day;
@@ -857,14 +915,14 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
    
     if (n_char == -1) {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         exit(1);
     }
 
     if (close(fd) == -1) // 파일 닫기
     {
         endwin();
-        fprintf(stderr, "Error: %s", EVENT_FILE2);
+        fprintf(stderr, "Error: %s", EVENT_FILE);
         endwin();
     }
 
@@ -886,6 +944,15 @@ void get_event_in_table(int year, int month, int day, int width, int x, int y_co
             // 한 줄 파싱
             get_line(line, &e);
             
+            // 단일일정인지 확인
+            if (e.start_year != e.end_year || e.start_month != e.end_month || e.start_day != e.end_day)
+            {
+                if (n_char == '\0')
+                    break;
+                else
+                    continue;
+            }
+
             // 이번 달 일정인지 확인
             if(state == DAILY_CALENDAR){
                 if (e.start_year == year && e.start_month == month && e.start_day == day) {

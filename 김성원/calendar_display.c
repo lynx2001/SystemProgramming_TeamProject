@@ -166,9 +166,9 @@ void show_small_month(int year, int month, struct winsize *wbuf)
     attroff(A_BOLD);
 
     // 일정표 상단 부분 출력
-	mvprintw(title_row + 2, header_col + (header_col*4 - 4) / 2, "date");
-	mvprintw(title_row + 2, header_col * 5 + (header_col*3 - 8) / 2, "schedule");
-	mvprintw(title_row + 2, header_col * 8 + (header_col - 4) / 2, "time");
+	mvprintw(title_row + 2, header_col + (header_col*4) / 2 - 4, "date");
+	mvprintw(title_row + 2, header_col * 5 + (header_col*3) / 2 - 8, "schedule");
+	mvprintw(title_row + 2, header_col * 8 + (header_col*2) / 2 - 4, "time");
 
 	mvhline(title_row + 3, header_col, '-', header_col * 9);
 

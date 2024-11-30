@@ -2,8 +2,6 @@
 #define CALENDAR_GET_EVENT_H
 
 #define EVENT_FILE "./test/event.txt"
-#define EVENT_FILE2 "./test/event2.txt"
-
 
 typedef struct info info;
 
