@@ -5,6 +5,11 @@
 #define EVENT_FILE "event.txt"
 #define ID_FILE "last_id.txt"
 
+// 화면 상수
+#define MAIN_SCREEN 0
+#define EVENT_SCREEN 1
+#define HABIT_SCREEN 2
+
 typedef struct {
     int year;
     int month;
@@ -44,5 +49,7 @@ typedef struct {
 extern Event events[MAX_EVENTS];
 extern int event_count;
 extern int last_id;
+
+extern int current_screen;
 
 #endif
