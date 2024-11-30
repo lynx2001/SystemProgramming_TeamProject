@@ -6,7 +6,7 @@
 
 void add_schedule() {
     char title[50], details[100];
-    int year, month, day, year_end, month_end, day_end;
+    int year_start, month_start, day_start, year_end, month_end, day_end;
     double weight;
     double quantity;
     int reminder;
@@ -16,23 +16,56 @@ void add_schedule() {
 
     mvprintw(2, 10, "Add Schedule:");
 
-    mvprintw(5, 12, "Enter start date (YYYY MM DD): ");
-    scanw("%d %d %d", &year, &month, &day);
+	// 제목 입력
+    if (get_input("Enter event title: ", title, sizeof(title)) == -1) return;
 
-    mvprintw(6, 12, "Enter end date (YYYY MM DD): ");
-    scanw("%d %d %d", &year_end, &month_end, &day_end);
+    // 시작 날짜 입력
+    while (1) {
+        if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d %d", &year_start, &month_start, &day_start) == 3 && validateDate(year_start, month_start, day_start)) {
+            break;
+        }
+        popup_message("Invalid date. Please try again.");
+    }
 
-    mvprintw(7, 12, "Enter weight (1~5): ");
-    scanw("%lf", &weight);
+	// 마감 날짜 입력
+    while (1) {
+        if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d %d", &year_end, &month_end, &day_end) == 3 && validateDate(year_end, month_end, day_end)) {
+            break;
+        }
+        popup_message("Invalid date. Please try again.");
+    }
 
-    mvprintw(8, 12, "Enter quantity: ");
-    scanw("%lf", &quantity);
+	// 가중치 입력
+    while (1) {
+        if (get_input("Enter weight (1~5): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%lf", &weight) == 1 && (weight == 1 || weight == 2 || weight == 3 || weight == 4 || weight == 5)) {
+            break;
+        }
+        popup_message("Invalid input. Please enter 1 - 5.");
+    }
 
-    mvprintw(9, 12, "Enter details: ");
-    getstr(details);
+	// 분량 입력
+    while (1) {
+        if (get_input("Enter quantity (integer): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%lf", &quantity) == 1) {	// 정수 여부 검증 필요
+            break;
+        }
+        popup_message("Invalid input. Please enter integer.");
+    }
+	
+	// 세부사항 입력
+    if (get_input("Enter details: ", details, sizeof(details)) == -1) return;
 
-    mvprintw(10, 12, "Set reminder (1: Yes, 0: No): ");
-    scanw("%d", &reminder);
+    // 리마인더 입력
+    while (1) {
+        if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d", &reminder) == 1 && (reminder == 0 || reminder == 1)) {
+            break;
+        }
+        popup_message("Invalid input. Please enter 1 or 0.");
+    }
 
     noecho();
 
@@ -40,9 +73,9 @@ void add_schedule() {
     Event new_event;
     new_event.id = ++last_id;
     strncpy(new_event.title, title, sizeof(new_event.title));
-    new_event.date_start.year = year;
-    new_event.date_start.month = month;
-    new_event.date_start.day = day;
+    new_event.date_start.year = year_start;
+    new_event.date_start.month = month_start;
+    new_event.date_start.day = day_start;
     new_event.date_end.year = year_end;
     new_event.date_end.month = month_end;
 	new_event.date_end.day = day_end;
