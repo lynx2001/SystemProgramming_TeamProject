@@ -3,13 +3,14 @@
 #include "event.h"
 #include "global.h"
 #include "util.h"
+#include "scheduler.h"
 
 Event events[MAX_EVENTS];
 int event_count = 0;  // 현재 저장된 이벤트 개수
 int last_id = 0;      // 마지막으로 부여된 이벤트 ID
 
 void add_event() {
-    char title[50], details[100];
+    char title[50], details[100], buffer[20];
     int year, month, day, hour, minute;
     int reminder;
 
@@ -19,55 +20,41 @@ void add_event() {
     mvprintw(2, 10, "Add Event:");
 
     // 제목 입력
-    mvprintw(4, 12, "Enter event title: ");
-    getstr(title);
+    if (get_input("Enter event title: ", title, sizeof(title)) == -1) return;
 
-    // 날짜 입력 검증
+	// 날짜 입력
     while (1) {
-        mvprintw(5, 12, "Enter start date (YYYY MM DD): ");
-        clrtoeol();  // 현재 줄 지우기
-        int result = scanw("%d %d %d", &year, &month, &day);
-
-        if (result == 3 && validateDate(year, month, day)) {
-            break;  // 유효한 입력
+        if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d %d", &year, &month, &day) == 3 && validateDate(year, month, day)) {
+            break;
         }
-
-        popup_message("Invalid date. Please try again.");  // 팝업 메시지 출력
+        popup_message("Invalid date. Please try again.");
     }
-
-    // 시간 입력 검증
+    
+	// 시간 입력
     while (1) {
-        mvprintw(6, 12, "Enter start time (HH MM): ");
-        clrtoeol();  // 현재 줄 지우기
-        int result = scanw("%d %d", &hour, &minute);
-
-        if (result == 2 && validateTime(hour, minute)) {
-            break;  // 유효한 입력
+        if (get_input("Enter start time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d", &hour, &minute) == 2 && validateTime(hour, minute)) {
+            break;
         }
-
-        popup_message("Invalid time. Please try again.");  // 팝업 메시지 출력
+        popup_message("Invalid time. Please try again.");
     }
+	
+	// 세부사항 입력
+    if (get_input("Enter details: ", details, sizeof(details)) == -1) return;
 
-    // 세부사항 입력
-    mvprintw(9, 12, "Enter details: ");
-    getstr(details);
-
-    // 리마인더 입력 검증
+    // 리마인더 입력
     while (1) {
-        mvprintw(10, 12, "Set reminder (1: Yes, 0: No): ");
-        clrtoeol();  // 현재 줄 지우기
-        int result = scanw("%d", &reminder);
-
-        if (result == 1 && (reminder == 0 || reminder == 1)) {
-            break;  // 유효한 입력
+        if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d", &reminder) == 1 && (reminder == 0 || reminder == 1)) {
+            break;
         }
-
-        popup_message("Invalid input. Please enter 1 or 0.");  // 팝업 메시지 출력
+        popup_message("Invalid input. Please enter 1 or 0.");
     }
+    
+	noecho();
 
-    noecho();
-
-    // 새로운 이벤트 데이터 저장
+    // 이벤트 데이터 저장
     Event new_event;
     new_event.id = ++last_id;
     strncpy(new_event.title, title, sizeof(new_event.title));
@@ -77,7 +64,8 @@ void add_event() {
     new_event.date_start.hour = hour;
     new_event.date_start.minute = minute;
     strncpy(new_event.details, details, sizeof(new_event.details));
-
+	new_event.interval = 0;
+    new_event.Dday = 0;
     events[event_count++] = new_event;
 
     popup_message("Event successfully added!");  // 성공 메시지 출력
@@ -164,8 +152,6 @@ void delete_event() {
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
     int choice;
-	is_in_submenu = true;  // 서브화면 상태 진입
-	current_submenu = EVENT_SUBMENU;  // 현재 서브화면 설정
 	
 	while (1) {
 		clear();
@@ -176,7 +162,8 @@ void event_submenu() {
         mvprintw(height / 2 - 4, (width - 25) / 2, "1. Add Event");
         mvprintw(height / 2 - 2, (width - 25) / 2, "2. Modify Event");
         mvprintw(height / 2, (width - 25) / 2, "3. Delete Event");
-        mvprintw(height / 2 + 2, (width - 25) / 2, "4. Back to Main Menu");
+        mvprintw(height / 2 + 2, (width - 25) / 2, "4. Auto Scheduling");
+        mvprintw(height / 2 + 4, (width - 25) / 2, "5. Back to Main Menu");
 
         refresh();
         choice = getch();  // 사용자 입력 대기
@@ -187,11 +174,10 @@ void event_submenu() {
             modify_event();  // 일정 수정
         } else if (choice == '3') {
             delete_event();  // 일정 삭제
-        } else if (choice == '4') {
+		} else if (choice == '4') {
+			add_schedule();  // 오토 스케줄링
+        } else if (choice == '5') {
             break;  // 초기화면 복귀
         }
     }
-	
-	current_submenu = 0;  // 서브화면 상태 초기화	
-	is_in_submenu = false;  // 서브화면 상태 종료
 }
