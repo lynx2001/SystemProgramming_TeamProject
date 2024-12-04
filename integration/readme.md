@@ -52,3 +52,6 @@
   5. global.h의 화면 상수 부분에 calendar화면을 3으로 지정
   6. display.c에서 기존의 캘린더 출력 부분을 월,일,년 출력으로 수정 및 메뉴 문자열 1번을 calendar로 수정
   7. 현재 테스트 위해 temp_event.txt 생성(오직 캘린더 일정 확인용 임시파일, 추후에 event.txt 나올 시 변경 예정)
+- 오류(12/5 02:25)
+  - 캘린더 내에서 날짜 변경시 일정 시간마다 날짜가 현재날짜로 돌아오는 현상 발견
+  - date_check.c에서 날짜 스레드 처리로 인해 calendar_control의 change_date 함수가 정상작동 안함 
