@@ -42,3 +42,13 @@
 ## 오류
 
 1. 터미널 크기 변경시 잘못된 리프레쉬 발생
+
+## calendar 추가
+- 변경점
+  1. 기존의 calendar.c, calendar.h 파일을 calendar 디렉토리로 대체
+  2. 이에 따라 기존 calendar.c에 있던 함수 사용 부분 삭제 (main.c, display.c)
+  3. main.c에서 1번 누를 시 캘린더 출력하도록 헤더파일 추가 및 코드 추가
+  4. util.c에서 터미널 창 변경 시 캘린더 화면일 시 캘린터 화면 변경하도록 헤더파일 추가 및 코드 추가
+  5. global.h의 화면 상수 부분에 calendar화면을 3으로 지정
+  6. display.c에서 기존의 캘린더 출력 부분을 월,일,년 출력으로 수정 및 메뉴 문자열 1번을 calendar로 수정
+  7. 현재 테스트 위해 temp_event.txt 생성(오직 캘린더 일정 확인용 임시파일, 추후에 event.txt 나올 시 변경 예정)
