@@ -4,9 +4,10 @@
 #include "global.h"
 #include "util.h"
 #include "display.h"
-#include "calendar.h"
 #include "event.h"
 #include "habit.h"
+#include "calendar/calendar.h"
+#include "calendar/calendar_control.h"
 
 // popup_message 호출 여부를 기록하는 전역 변수
 bool popup_message_called = false;
@@ -84,13 +85,18 @@ void handle_resize(int sig) {
 	(void) width;
 	
     if (current_screen == MAIN_SCREEN) {
-        draw_calendar_screen();
+        draw_title();
         draw_main_menu();
         draw_lists();
 	} else if (current_screen == EVENT_SCREEN) {
 		event_submenu();
     } else if (current_screen == HABIT_SCREEN) {
         habit_submenu();
+    } else if (current_screen == CALENDAR_SCREEN) {
+        color = ((color + 2) % 3);
+        prev_first_color = cur_first_color;
+        cur_first_color = color;
+        show_calendar();
     }
 
 //:	refresh();

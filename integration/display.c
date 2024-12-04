@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <time.h>
 #include "display.h"
 #include "global.h"
 #include "event.h"
@@ -30,7 +31,7 @@ static void draw_horizontal_menu() {
 
 	(void)height;  // 높이를 명시적으로 무시
     
-	const char *menu_items[] = {"1. Change Calendar Format", "2. Event Management",
+	const char *menu_items[] = {"1. Calendar", "2. Event Management",
                                 "3. Habit Management", "q. Quit"};
     int menu_count = sizeof(menu_items) / sizeof(menu_items[0]);
     int menu_y = 10;
@@ -47,7 +48,7 @@ static void draw_horizontal_menu() {
 // 리스트 레이아웃 메뉴 출력
 static void draw_vertical_menu() {
     // 세로 메뉴 출력
-    mvprintw(5, 5, "1. Change Calendar Format");
+    mvprintw(5, 5, "1. Calendar");
     mvprintw(6, 5, "2. Event Management");
     mvprintw(7, 5, "3. Habit Management");
     mvprintw(8, 5, "q. Quit");
@@ -66,6 +67,28 @@ void draw_main_menu() {
     } else {
         draw_vertical_menu();    // 세로 메뉴
     }
+}
+
+// 타이틀 출력
+void draw_title() {
+    char title[50]; // 타이틀(월, 일, 년)
+    char months_to_string[][20] = {"Januray", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+    time_t t = time(NULL);
+    struct tm *date = localtime(&t);   
+    
+    int y = date->tm_year + 1900; // 현재 연도 (tm_year는 1900년부터 시작)
+    int m = date->tm_mon + 1;     // 현재 월 (tm_mon은 0부터 시작)
+    int d = date->tm_mday;        // 현재 일
+    snprintf(title, sizeof(title), "%s %d, %d", months_to_string[m-1], d, y);
+    
+    // 타이틀이 출력될 위치
+    int title_row = 3;
+    int title_col = (COLS - strlen(title)) / 2;
+
+    attron(A_BOLD);
+    mvprintw(title_row, title_col, "%s", title);
+    attroff(A_BOLD);
 }
 
 // 리마인더와 습관 리스트 출력

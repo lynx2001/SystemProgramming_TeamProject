@@ -3,6 +3,6 @@
 
 void draw_main_menu();       // 메뉴 출력
 void draw_lists();           // 리마인더와 습관 목록 출력
-
+void draw_title();			 // 타이틀 출력
 #endif
 
