@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -lncurses
+CFLAGS = -Wall -lncurses -p
 
 TARGET = calendar_manager
-OBJS = main.o calendar.o display.o event.o habit.o scheduler.o util.o
+OBJS = main.o calendar.o display.o event.o habit.o scheduler.o util.o date_check.o
 
 all: $(TARGET)
 

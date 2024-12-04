@@ -7,11 +7,42 @@
 #include "event.h"
 #include "habit.h"
 #include "scheduler.h"
+//gaeun
+#include "date_check.h"
 
 // 현재 활성화된 화면을 추적하는 변수
 int current_screen = MAIN_SCREEN;
 
+//gaeun
+void handleDateChangeSignal(int signal, siginfo_t *info, void *context) {
+    if (signal == SIGUSR1) {
+        
+        signalresetHabits();
+        draw_calendar_screen(); 
+        draw_main_menu();
+        draw_lists();       
+    }
+}
+
+
 int main() {
+    //gaeun
+    loadHabits();
+    
+    struct sigaction new_handler;
+
+    new_handler.sa_sigaction = handleDateChangeSignal;//시그널발생시 처리 함수
+    new_handler.sa_flags = 0; //일단 0으로 세팅
+    sigemptyset(&new_handler.sa_mask); 
+    
+    if (sigaction(SIGUSR1, &new_handler, NULL) == -1) {
+        perror("sigaction error");
+        return 1;
+    }
+    initializeDateMonitor();
+    startDateMonitor();
+
+//
     initscr();         // ncurses 초기화
     noecho();          // 사용자 입력 숨기기
     curs_set(FALSE);   // 커서 숨기기
@@ -51,6 +82,9 @@ int main() {
                 draw_lists();
                 break;
             case 'q': // 프로그램 종료
+                //gaeun
+                saveHabits();
+                stopDateMonitor();
                 endwin();
                 return 0;
             default:
