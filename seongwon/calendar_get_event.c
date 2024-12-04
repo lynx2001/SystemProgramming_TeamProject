@@ -176,7 +176,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
             mvprintw(x, y_coordinate[1] + width / 2 - 6, "%s~", event->start_time);
         // 종료 시간만 표기된 경우
         else if(strcmp(event->end_time, "24:00") != 0 && strcmp(event->start_time, "24:00") == 0) 
-            mvprintw(x, y_coordinate[1], "%s~", event->end_time);
+            mvprintw(x, y_coordinate[1], "%~s", event->end_time);
         // 시간이 표기되어 있지 않은 경우
         else if(strcmp(event->start_time, "24:00") == 0) 
             mvprintw(x, y_coordinate[1] + width / 2 - 1, "-");
@@ -221,7 +221,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
             mvprintw(x, y_coordinate[2], "%s~", event->start_time);
         // 종료 시간만 표기된 경우
         else if(strcmp(event->end_time, "24:00") != 0 && strcmp(event->start_time, "24:00") == 0) 
-            mvprintw(x, y_coordinate[2], "%s~", event->end_time);
+            mvprintw(x, y_coordinate[2], "%~s", event->end_time);
         // 시간이 표기되어 있지 않은 경우
         else if(strcmp(event->start_time, "24:00") == 0) 
             mvprintw(x, y_coordinate[2] + width / 2, "-");
