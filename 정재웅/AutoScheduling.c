@@ -6,15 +6,18 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <pthread.h>
+#include <ncurses.h>
+#include <string.h>
 #include "AutoScheduling.h"
 
 Event events[MAX_EVENTS];
 int event_count = 0;
 
 
+
 typedef struct ToDo {
     int id;
-    char name[100];
+    char title[100];
     int is_done;
 } ToDo;
 
@@ -88,7 +91,7 @@ void printCalendar(Event* event_t) {
             }
             if (year > event_t->date_start.year || month > event_t->date_start.month || d >= event_t->date_start.day) {
                 workProgress += dailyWorkload;
-                printf("%2d %s[%.1f] ", d, event_t->name, workProgress);
+                printf("%2d %s[%.1f] ", d, event_t->title, workProgress);
             }
             else {
                 printf(" %2d                    ", d);
@@ -111,7 +114,7 @@ void printCalendar(Event* event_t) {
     }
     printf("\n------------------------------------------------------------------------------------------------------------------------------------------------------------------\n");
 }
-
+/*
 void *date_checker(void* arg) {
     Event* events = (Event*)arg;
     struct tm current_date, new_date;
@@ -140,17 +143,121 @@ void *date_checker(void* arg) {
     }
     return NULL;
 }
+*/
+
+void handleDateChangeSignal(int signal) {
+    if(signal == SIGUSR1) {
+        updateDdayAndWeights(events, event_count);
+    }
+        
+}
 
 int main(int argc, char* argv[]) {
     Time current;
     initTime(&current);
 
-    pthread_t date_thread;
-    if(pthread_create(&date_thread, NULL, date_checker, NULL) != 0) {
-        perror("Fail to create Thread");
+    struct sigaction new_handler;
+    new_handler.sa_sigaction = handleDateChangeSignal;//시그널발생시 처리 함수
+    new_handler.sa_flags = 0; //일단 0으로 세팅
+    sigemptyset(&new_handler.sa_mask);
+    if (sigaction(SIGUSR1, &new_handler, NULL) == -1) {
+        perror("sigaction error");
         return 1;
     }
 
+    initializeDateMonitor();
+    startDateMonitor();
+
+
+    char title[50], details[100], buffer[20];
+    int year_start, month_start, day_start, year_end, month_end, day_end;
+    double weight;
+    double quantity;
+    int reminder;
+
+    clear();
+    echo();
+
+    mvprintw(2, 10, "Add Schedule:");
+
+	// 제목 입력
+    if (get_input("Enter event title: ", title, sizeof(title)) == -1) return;
+
+    // 시작 날짜 입력
+    while (1) {
+        if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d %d", &year_start, &month_start, &day_start) == 3 && validateDate(year_start, month_start, day_start)) {
+            break;
+        }
+        popup_message("Invalid date. Please try again.");
+    }
+
+	// 마감 날짜 입력
+    while (1) {
+        if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d %d %d", &year_end, &month_end, &day_end) == 3 && validateDate(year_end, month_end, day_end)) {
+            break;
+        }
+        popup_message("Invalid date. Please try again.");
+    }
+
+	// 가중치 입력
+    while (1) {
+        if (get_input("Enter weight (1~5): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%lf", &weight) == 1 && (weight == 1 || weight == 2 || weight == 3 || weight == 4 || weight == 5)) {
+            break;
+        }
+        popup_message("Invalid input. Please enter 1 - 5.");
+    }
+
+	// 분량 입력
+    while (1) {
+        if (get_input("Enter quantity (integer): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%lf", &quantity) == 1) {	// 정수 여부 검증 필요
+            break;
+        }
+        popup_message("Invalid input. Please enter integer.");
+    }
+	
+	// 세부사항 입력
+    if (get_input("Enter details: ", details, sizeof(details)) == -1) return;
+
+    // 리마인더 입력
+    while (1) {
+        if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%d", &reminder) == 1 && (reminder == 0 || reminder == 1)) {
+            break;
+        }
+        popup_message("Invalid input. Please enter 1 or 0.");
+    }
+
+    noecho();
+
+    // 새로운 스케줄 생성 및 데이터 저장
+    Event new_event;
+    new_event.id = ++last_id;
+    strncpy(new_event.title, title, sizeof(new_event.title));
+    new_event.date_start.year = year_start;
+    new_event.date_start.month = month_start;
+    new_event.date_start.day = day_start;
+    new_event.date_end.year = year_end;
+    new_event.date_end.month = month_end;
+	new_event.date_end.day = day_end;
+    new_event.weight = weight;
+    new_event.quantity = quantity;
+    strncpy(new_event.details, details, sizeof(new_event.details));
+
+    // 배열에 새 스케줄 추가
+    events[event_count++] = new_event;
+
+    popup_message("Schedule successfully added!");
+
+
+
+
+
+
+/*
     int continueFlag = 1;
     char userResponse;
     while (1) {
@@ -158,7 +265,7 @@ int main(int argc, char* argv[]) {
             break;
 
         ask("Enter Name of ToDo");
-        scanf("%s", events[event_count].name);
+        scanf("%s", events[event_count].title);
 
         ask("Enter Quantity of ToDo");
         scanf("%lf", &events[event_count].quantity);
@@ -204,7 +311,9 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < event_count; i++) {
         printCalendar(&events[i]);
     }
-
-    pthread_join(date_thread, NULL);
+*/
+    //pthread_join(date_thread, NULL);
+    //add header file
+    stopDateMonitor();
     return 0;
 }

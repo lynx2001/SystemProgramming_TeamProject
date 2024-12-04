@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include "event.h"
+#include "global.h"
 #include "CalculateScheduling.h"
 #include "AutoScheduling.h"
+#include "date_check.h"
 
 int validateDate(int year, int month, int day);
 

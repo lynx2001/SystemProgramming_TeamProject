@@ -84,7 +84,10 @@ int calculateStartDayOfWeek(int year, int month, int day) {
     return (dayOfWeek + 6) % 7;
 }
 
-void updateDdayAndWeights(Event events[], int count, Time current) {
+void updateDdayAndWeights(Event events[], int count) {
+    Time current;
+    initTime(&current);
+
     for(int i = 0; i < count; i++) {
         calDday(&events[i], current);
         calWeight(&events[i], events[i].importance);
