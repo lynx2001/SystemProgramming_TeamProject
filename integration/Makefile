@@ -1,14 +1,23 @@
 CC = gcc
-CFLAGS = -Wall -lncurses -p
+CFLAGS = -Wall
+LDFLAGS = -lncurses
 
 TARGET = calendar_manager
 CALENDAR = ./calendar/calendar.o ./calendar/calendar_control.o ./calendar/calendar_display.o ./calendar/calendar_get_event.o
-OBJS = main.o display.o event.o habit.o scheduler.o util.o date_check.o ${CALENDAR}
+OBJS = main.o \
+       display.o \
+       event.o \
+       habit.o \
+       scheduler.o \
+       util.o \
+       date_check.o \
+       global.o \
+       ${CALENDAR}
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) -o $@ $(OBJS) $(CFLAGS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 # integration 디렉토리의 .c 파일 규칙
 %.o: %.c

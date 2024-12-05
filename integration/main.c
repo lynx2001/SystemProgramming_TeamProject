@@ -10,10 +10,6 @@
 #include "date_check.h"
 #include "./calendar/calendar.h"
 
-
-// 현재 활성화된 화면을 추적하는 변수
-int current_screen = MAIN_SCREEN;
-
 //gaeun
 void handleDateChangeSignal(int signal, siginfo_t *info, void *context) {
     if (signal == SIGUSR1) {
@@ -89,7 +85,8 @@ int main() {
                 draw_lists();
                 break;
             case 'q': // 프로그램 종료
-                //gaeun
+                // 현재 file IO로 인해 종료까지 멈춤 현상
+                // 종료 로딩창 or 입력 방지 등 필요해 보임
                 saveHabits();
                 stopDateMonitor();
                 endwin();

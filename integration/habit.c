@@ -6,8 +6,6 @@
 #include "global.h"
 #include "util.h"
 
-char last_checked_date[11]; 
-
 time_t customParseDate(const char *date) {
     struct tm tm_info = {0};
 

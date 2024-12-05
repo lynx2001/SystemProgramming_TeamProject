@@ -56,6 +56,7 @@ extern int habit_count;
 extern int last_habit_id;
 
 extern int current_screen;
+extern char last_checked_date[11];
 
 #endif
 

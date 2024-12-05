@@ -5,10 +5,6 @@
 #include "util.h"
 #include "scheduler.h"
 
-Event events[MAX_EVENTS];
-int event_count = 0;  // 현재 저장된 이벤트 개수
-int last_id = 0;      // 마지막으로 부여된 이벤트 ID
-
 void add_event() {
     char title[50], details[100], buffer[20];
     int year, month, day, hour, minute;
