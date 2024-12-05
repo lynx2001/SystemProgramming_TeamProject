@@ -5,11 +5,7 @@
 #include "habit.h"
 #include "global.h"
 #include "util.h"
-#define HABIT_FILE "habit.txt"
 
-Habit habits[MAX_HABITS];
-int habit_count = 0;
-int last_habit_id = 0;
 char last_checked_date[11]; 
 
 time_t customParseDate(const char *date) {
