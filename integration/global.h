@@ -5,7 +5,6 @@
 #define MAX_HABITS 100
 #define EVENT_FILE "event.txt"
 #define HABIT_FILE "habit.txt"
-#define ID_FILE "last_id.txt"
 
 // 화면 상수
 #define MAIN_SCREEN 0
@@ -15,18 +14,11 @@
 
 // 구조체 정의
 typedef struct {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-} Time;
-
-typedef struct {
     int id;
     char title[50];
-    Time date_start;
-    Time date_end;
+    struct {
+        int year, month, day, hour, minute;
+    } date_start, date_end;
     int importance;     // 0 ~ 5 사이 정수
     double quantity;    // 하루 당 분량
     double interval;    // 마감일 - 시작일
@@ -49,7 +41,7 @@ typedef struct {
 // 전역 변수 선언
 extern Event events[MAX_EVENTS];
 extern int event_count;
-extern int last_id;
+extern int last_event_id;
 
 extern Habit habits[MAX_HABITS];
 extern int habit_count;

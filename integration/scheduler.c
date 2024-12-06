@@ -71,7 +71,7 @@ void add_schedule() {
 
     // 새로운 스케줄 생성 및 데이터 저장
     Event new_event;
-    new_event.id = ++last_id;
+    new_event.id = ++last_event_id;
     strncpy(new_event.title, title, sizeof(new_event.title));
     new_event.date_start.year = year_start;
     new_event.date_start.month = month_start;

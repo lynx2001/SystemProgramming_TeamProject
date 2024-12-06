@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall
 LDFLAGS = -lncurses
 
-TARGET = calendar_manager
+TARGET = project
 CALENDAR = ./calendar/calendar.o ./calendar/calendar_control.o ./calendar/calendar_display.o ./calendar/calendar_get_event.o
 OBJS = main.o \
        display.o \

@@ -23,7 +23,7 @@ void handleDateChangeSignal(int signal, siginfo_t *info, void *context) {
 
 
 int main() {
-    //gaeun
+    loadEvents();
     loadHabits();
     
     struct sigaction new_handler;
