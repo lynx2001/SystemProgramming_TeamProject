@@ -1,7 +1,7 @@
 #ifndef CALENDAR_GET_EVENT_H
 #define CALENDAR_GET_EVENT_H
 
-#define EVENT_FILE "temp_event.txt"
+#define EVENT_FILE "event.txt"
 
 typedef struct info info;
 
