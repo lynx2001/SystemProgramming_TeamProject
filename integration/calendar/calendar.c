@@ -6,6 +6,8 @@
 #include "calendar_control.h"
 #include "calendar_display.h"
 #include "calendar.h"
+#include "../date_check.h"
+
 
 int year = 0, month = 0, day = 0;
 int td_year = 0, td_month = 0, td_day = 0;
@@ -13,6 +15,8 @@ int color = 0, prev_first_color = 0, cur_first_color = 0;
 
 int draw_calendar()
 {
+    stopDateMonitor();
+
     int ch;
 	// 현재 날짜와 시간을 가져옴
     time_t t = time(NULL);
@@ -93,5 +97,7 @@ int draw_calendar()
         }    
     }
 
+    //initializeDateMonitor();
+    startDateMonitor();
 	return 0;
 }
