@@ -41,7 +41,10 @@
 
 ## 오류
 
-1. 터미널 크기 변경시 잘못된 리프레쉬 발생
+~~1. 터미널 크기 변경시 잘못된 리프레쉬 발생~~
+- 기존 ```event_submenu()```, ```habit_submenu()```에 통합되어 있던 ui 코드를 ```display.c```에 ```draw_event_screen()```, ```draw_habit_screen()```로 분리
+- ```handle_resize(int sig)```에서는 ui 함수만 호출
+- 단, 서브메뉴 내부의 기능을 선택한 때(```addEvents()``` 등이 호출된 상태)에는 핸들러가 작동하지 않도록 ```DEFAULT_SCREEN``` 화면 상수를 추가 (추후 이 경우에도 작동하도록 변경 가능성 있음)
 
 ## calendar 추가
 - 변경점
