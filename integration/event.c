@@ -190,11 +190,14 @@ void addEvents() {
     }
 
     // 중요도 입력
-    if (get_input("Enter importance (0-5): ", buffer, sizeof(buffer)) == -1) return;
+    /*
+	if (get_input("Enter importance (0-5): ", buffer, sizeof(buffer)) == -1) return;
     sscanf(buffer, "%d", &event.importance);
+	*/
 
     // 기타 값 입력 (기본값 -1 설정)
-    event.quantity = -1;
+    event.importance = 0;	// 일반 일정은 중요도 0으로 설정, 오토 스케줄링 일정은 0-5 사이 입력 아닌가요?
+	event.quantity = -1;
     event.interval = -1;
     event.Dday = -1;
     event.weight = -1;
