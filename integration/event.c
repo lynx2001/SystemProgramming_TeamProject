@@ -17,18 +17,34 @@ void event_submenu() {
         choice = getch();  // 사용자 입력 대기
 
         if (choice == '1') {
+			current_screen = DEFAULT_SCREEN;
             addEvents();  // 일정 추가
-			current_screen = DEFAULT_SCREEN;
+			clear();
+
+			current_screen = EVENT_SCREEN;
+			draw_event_screen();
         } else if (choice == '2') {
+			current_screen = DEFAULT_SCREEN;
             modifyEvents();  // 일정 수정
-			current_screen = DEFAULT_SCREEN;
+			clear();
+
+			current_screen = EVENT_SCREEN;
+			draw_event_screen();
         } else if (choice == '3') {
-            deleteEvents();  // 일정 삭제
 			current_screen = DEFAULT_SCREEN;
+            deleteEvents();  // 일정 삭제
+			clear();
+
+			current_screen = EVENT_SCREEN;
+			draw_event_screen();
 		} else if (choice == '4') {
+			current_screen = DEFAULT_SCREEN;
             printf("Auto Scheduling here\n");
 			//add_schedule();  // 오토 스케줄링
-			current_screen = DEFAULT_SCREEN;
+			clear();
+
+			current_screen = EVENT_SCREEN;
+			draw_event_screen();
         } else if (choice == '5') {
             break;  // 초기화면 복귀
         }

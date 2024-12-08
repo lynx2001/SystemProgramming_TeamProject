@@ -259,17 +259,33 @@ void habit_submenu() {
         choice = getch();
 
         if (choice == '1') {
+			current_screen = DEFAULT_SCREEN;
             add_habit();
-			current_screen = DEFAULT_SCREEN;
+			clear();
+			
+			current_screen = HABIT_SCREEN;
+			draw_habit_screen();
         } else if (choice == '2') {
+			current_screen = DEFAULT_SCREEN;
             change_habit();
-			current_screen = DEFAULT_SCREEN;
+			clear();
+			
+			current_screen = HABIT_SCREEN;
+			draw_habit_screen();
         } else if (choice == '3') {
+			current_screen = DEFAULT_SCREEN;
             delete_habit();
-			current_screen = DEFAULT_SCREEN;
+			clear();
+			
+			current_screen = HABIT_SCREEN;
+			draw_habit_screen();
         } else if (choice == '4') {
-            mark_habit_success();
 			current_screen = DEFAULT_SCREEN;
+            mark_habit_success();
+			clear();
+			
+			current_screen = HABIT_SCREEN;
+			draw_habit_screen();
         } else if (choice == '5') {
             saveHabits();
             break;
