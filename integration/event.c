@@ -8,6 +8,7 @@
 
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
+	current_screen = EVENT_SCREEN;
     draw_event_screen();
 
 	int choice;
@@ -17,13 +18,17 @@ void event_submenu() {
 
         if (choice == '1') {
             addEvents();  // 일정 추가
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '2') {
             modifyEvents();  // 일정 수정
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '3') {
             deleteEvents();  // 일정 삭제
+			current_screen = DEFAULT_SCREEN;
 		} else if (choice == '4') {
             printf("Auto Scheduling here\n");
 			//add_schedule();  // 오토 스케줄링
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '5') {
             break;  // 초기화면 복귀
         }

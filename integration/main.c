@@ -66,7 +66,6 @@ int main() {
                 draw_lists();           // 리스트 갱신
 				break;
             case '2': // 이벤트 관리
-				current_screen = EVENT_SCREEN;
                 event_submenu();
                 current_screen = MAIN_SCREEN; // 초기 화면으로 복귀
                 clear();
@@ -76,7 +75,6 @@ int main() {
                 draw_lists();
 				break;
             case '3': // 습관 관리
-				current_screen = HABIT_SCREEN;
                 habit_submenu();
 				current_screen = MAIN_SCREEN; // 초기 화면으로 복귀
                 clear();

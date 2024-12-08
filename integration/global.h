@@ -11,6 +11,7 @@
 #define EVENT_SCREEN 1
 #define HABIT_SCREEN 2
 #define CALENDAR_SCREEN 3
+#define DEFAULT_SCREEN 4
 
 // 구조체 정의
 typedef struct {

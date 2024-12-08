@@ -250,6 +250,7 @@ void mark_habit_success() {
 
 // 습관 관리 서브 메뉴
 void habit_submenu() {
+	current_screen = HABIT_SCREEN;
     draw_habit_screen();
 
 	int choice;
@@ -259,12 +260,16 @@ void habit_submenu() {
 
         if (choice == '1') {
             add_habit();
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '2') {
             change_habit();
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '3') {
             delete_habit();
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '4') {
             mark_habit_success();
+			current_screen = DEFAULT_SCREEN;
         } else if (choice == '5') {
             saveHabits();
             break;
