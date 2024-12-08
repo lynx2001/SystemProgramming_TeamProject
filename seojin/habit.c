@@ -119,6 +119,7 @@ void mark_habit_success() {
 
 // 습관 관리 서브 메뉴
 void habit_submenu() {
+	current_screen = HABIT_SCREEN;
     draw_habit_screen();
 
 	int choice;
@@ -127,13 +128,29 @@ void habit_submenu() {
         choice = getch();
 
         if (choice == '1') {
+			current_screen = DEFAULT_SCREEN;
             add_habit();
+			clear();
+			
+			current_screen = HABIT_SCREEN;
         } else if (choice == '2') {
+			current_screen = DEFAULT_SCREEN;
             change_habit();
+			clear();
+			
+			current_screen = HABIT_SCREEN;
         } else if (choice == '3') {
+			current_screen = DEFAULT_SCREEN;
             delete_habit();
+			clear();
+			
+			current_screen = HABIT_SCREEN;
         } else if (choice == '4') {
+			current_screen = DEFAULT_SCREEN;
             mark_habit_success();
+			clear();
+			
+			current_screen = HABIT_SCREEN;
         } else if (choice == '5') {
 	        current_screen = MAIN_SCREEN;
 			break;

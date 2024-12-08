@@ -72,7 +72,11 @@ bool validateTime(int hour, int minute) {
 
 //화면 크기 조절 감지 핸들러
 void handle_resize(int sig) {
-    endwin();
+    if (current_screen == DEFAULT_SCREEN) {
+		return;
+	}
+
+	endwin();
     refresh();
     clear();
 
@@ -91,9 +95,7 @@ void handle_resize(int sig) {
     	draw_event_screen();
 	} else if (current_screen == HABIT_SCREEN) {
         draw_habit_screen();
-    }/* else if (current_screen == EVENT_ADD) {
-		draw_event_add();
-	}*/
+    }
 
 	refresh();
 }

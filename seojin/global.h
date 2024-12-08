@@ -9,6 +9,7 @@
 #define MAIN_SCREEN 0
 #define EVENT_SCREEN 1
 #define HABIT_SCREEN 2
+#define DEFAULT_SCREEN 4
 
 typedef struct {
     int year;

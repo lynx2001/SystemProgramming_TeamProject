@@ -152,6 +152,7 @@ void delete_event() {
 
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
+	current_screen = EVENT_SCREEN;
 	draw_event_screen();
 
 	int choice;
@@ -160,13 +161,30 @@ void event_submenu() {
         choice = getch();  // 사용자 입력 대기
 
         if (choice == '1') {
+			current_screen = DEFAULT_SCREEN;
             add_event();  // 일정 추가
+			clear();
+			
+			current_screen = EVENT_SCREEN;
+			draw_event_screen();
         } else if (choice == '2') {
+			current_screen = DEFAULT_SCREEN;
             modify_event();  // 일정 수정
+			clear();
+			
+			current_screen = EVENT_SCREEN;
         } else if (choice == '3') {
+			current_screen = DEFAULT_SCREEN;
             delete_event();  // 일정 삭제
+			clear();
+			
+			current_screen = EVENT_SCREEN;
 		} else if (choice == '4') {
+			current_screen = DEFAULT_SCREEN;
 			add_schedule();  // 오토 스케줄링
+			clear();
+			
+			current_screen = EVENT_SCREEN;
         } else if (choice == '5') {
         	current_screen = MAIN_SCREEN;
 			break;  // 초기화면 복귀
