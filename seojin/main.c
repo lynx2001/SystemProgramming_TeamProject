@@ -36,8 +36,6 @@ int main() {
             case '2': // 이벤트 관리
 				current_screen = EVENT_SCREEN;
                 event_submenu();
-
-                current_screen = MAIN_SCREEN;
 				draw_calendar_screen(); // 초기 화면으로 복귀
                 draw_main_menu();
                 draw_lists();
@@ -45,7 +43,6 @@ int main() {
             case '3': // 습관 관리
 				current_screen = HABIT_SCREEN;
                 habit_submenu();
-				current_screen = MAIN_SCREEN;
                 draw_calendar_screen(); // 초기 화면으로 복귀
                 draw_main_menu();
                 draw_lists();

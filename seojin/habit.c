@@ -3,6 +3,7 @@
 #include "habit.h"
 #include "global.h"
 #include "util.h"
+#include "display.h"
 
 Habit habits[MAX_HABITS];
 int habit_count = 0;
@@ -118,20 +119,11 @@ void mark_habit_success() {
 
 // 습관 관리 서브 메뉴
 void habit_submenu() {
-    int choice;
+    draw_habit_screen();
+
+	int choice;
     
 	while (1) {
-        clear();
-        int height, width;
-        getmaxyx(stdscr, height, width);
-
-        mvprintw(height / 2 - 4, (width - 30) / 2, "1. Add Habit");
-        mvprintw(height / 2 - 2, (width - 30) / 2, "2. Change Habit");
-        mvprintw(height / 2, (width - 30) / 2, "3. Delete Habit");
-        mvprintw(height / 2 + 2, (width - 30) / 2, "4. Mark Habit Success");
-        mvprintw(height / 2 + 4, (width - 30) / 2, "5. Back to Main Menu");
-
-        refresh();
         choice = getch();
 
         if (choice == '1') {
@@ -143,7 +135,8 @@ void habit_submenu() {
         } else if (choice == '4') {
             mark_habit_success();
         } else if (choice == '5') {
-            break;
+	        current_screen = MAIN_SCREEN;
+			break;
         }
     }
 }

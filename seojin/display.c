@@ -92,3 +92,34 @@ void draw_lists() {
 
     refresh();
 }
+
+// 일정 관리 서브메뉴 화면
+void draw_event_screen() {
+    clear();
+    int height, width;
+    getmaxyx(stdscr, height, width);
+
+    mvprintw(height / 2 - 4, (width - 25) / 2, "1. Add Event");
+    mvprintw(height / 2 - 2, (width - 25) / 2, "2. Modify Event");
+   	mvprintw(height / 2, (width - 25) / 2, "3. Delete Event");
+    mvprintw(height / 2 + 2, (width - 25) / 2, "4. Auto Scheduling");
+    mvprintw(height / 2 + 4, (width - 25) / 2, "5. Back to Main Menu");
+    
+	refresh();
+}
+
+// 습관 관리 서브메뉴 화면
+void draw_habit_screen() {
+    clear();
+    int height, width;
+    getmaxyx(stdscr, height, width);
+
+	mvprintw(height / 2 - 4, (width - 30) / 2, "1. Add Habit");
+    mvprintw(height / 2 - 2, (width - 30) / 2, "2. Change Habit");
+    mvprintw(height / 2, (width - 30) / 2, "3. Delete Habit");
+    mvprintw(height / 2 + 2, (width - 30) / 2, "4. Mark Habit Success");
+    mvprintw(height / 2 + 4, (width - 30) / 2, "5. Back to Main Menu");
+    
+	refresh();
+}
+
