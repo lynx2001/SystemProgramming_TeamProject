@@ -4,24 +4,15 @@
 #include "global.h"
 #include "util.h"
 #include "scheduler.h"
+#include "display.h"
 
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
-    int choice;
+    draw_event_screen();
+
+	int choice;
 	
 	while (1) {
-		clear();
-        int height, width;
-        getmaxyx(stdscr, height, width);  // 현재 터미널 크기 가져오기
-
-        // 메뉴 옵션 출력
-        mvprintw(height / 2 - 4, (width - 25) / 2, "1. Add Event");
-        mvprintw(height / 2 - 2, (width - 25) / 2, "2. Modify Event");
-        mvprintw(height / 2, (width - 25) / 2, "3. Delete Event");
-        mvprintw(height / 2 + 2, (width - 25) / 2, "4. Auto Scheduling");
-        mvprintw(height / 2 + 4, (width - 25) / 2, "5. Back to Main Menu");
-
-        refresh();
         choice = getch();  // 사용자 입력 대기
 
         if (choice == '1') {

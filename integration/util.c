@@ -81,7 +81,7 @@ void handle_resize(int sig) {
 	int height, width;
 	getmaxyx(stdscr, height, width);
 
-	(void)height;
+	(void) height;
 	(void) width;
 	
     if (current_screen == MAIN_SCREEN) {
@@ -89,9 +89,9 @@ void handle_resize(int sig) {
         draw_main_menu();
         draw_lists();
 	} else if (current_screen == EVENT_SCREEN) {
-		event_submenu();
-    } else if (current_screen == HABIT_SCREEN) {
-        habit_submenu();
+    	draw_event_screen();
+	} else if (current_screen == HABIT_SCREEN) {
+        draw_habit_screen();
     } else if (current_screen == CALENDAR_SCREEN) {
         color = ((color + 2) % 3);
         prev_first_color = cur_first_color;
@@ -99,7 +99,7 @@ void handle_resize(int sig) {
         show_calendar();
     }
 
-//:	refresh();
+	refresh();
 }
 
 /**
