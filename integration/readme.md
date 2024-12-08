@@ -37,9 +37,9 @@
 - 가중치를 기반으로 한 일정 스케줄링 기능
 - 조원 코드로 교체해야함
 
+---
 
-
-## 오류
+## UI
 
 ~~1. 터미널 크기 변경시 잘못된 리프레쉬 발생~~
 - 기존 ```event_submenu()```, ```habit_submenu()```에 통합되어 있던 ui 코드를 ```display.c```에 ```draw_event_screen()```, ```draw_habit_screen()```로 분리
