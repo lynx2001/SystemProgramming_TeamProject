@@ -1,15 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <pthread.h>
 #include <ncurses.h>
 #include <string.h>
+#include <time.h>
 #include "global.h"
 #include "util.h"
 #include "scheduler.h"
+#include "date_check.h"
+
+time_t timer;
+struct tm* t;
+
+void initTime(Time* x) {
+    timer = time(NULL);
+    t = localtime(&timer);
+
+    x->year = t->tm_year + 1900;
+    x->month = t->tm_mon + 1;
+    x->day = t->tm_mday;
+}
+
+
+//Interval Calculation
+void calInterval(Event* event_t) {
+    event_t->interval = 0;
+    int year = event_t->date_start.year;
+    int month = event_t->date_start.month;
+    int day = event_t->date_start.day;
+
+    int endYear = event_t->date_end.year;
+    int endMonth = event_t->date_end.month;
+    int endDay = event_t->date_end.day;
+
+    while (year < endYear || (year == endYear && month < endMonth) || (year == endYear && month == endMonth && day < endDay)) {
+        event_t->interval++;
+        day++;
+        if (day > daysInMonth(month, year)) {
+            day = 1;
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+        }
+    }
+}
+
+//Dday Calculation
+
+void calDday(Event* event_t, Time current) {
+    event_t->Dday = 0;
+    int year = current.year;
+    int month = current.month;
+    int day = current.day;
+
+    int endYear = event_t->date_end.year;
+    int endMonth = event_t->date_end.month;
+    int endDay = event_t->date_end.day;
+
+    while (year < endYear || (year == endYear && month < endMonth) || (year == endYear && month == endMonth && day < endDay)) {
+        event_t->Dday++;
+        day++;
+        if (day > daysInMonth(month, year)) {
+            day = 1;
+            month++;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
+        }
+    }
+}
+
+
+//Weigth Calcuation
+void calWeight(Event* event_t, int importance) {
+    const double a = 100.0;
+    const double b = 1.0;
+
+    if (event_t->Dday == 0)
+        event_t->weight = importance;
+    else
+        event_t->weight = a * (1.0 / event_t->Dday) + b * importance;
+}
+
+//Thread: Updaye Dday and Weight By DayChange
+void updateDdayAndWeights(Event events[], int count) {
+    Time current;
+    initTime(&current);
+
+    for(int i = 0; i < count; i++) {
+        calDday(&events[i], current);
+        calWeight(&events[i], events[i].importance);
+    }
+}
 
 void add_schedule() {
     char title[50], details[100], buffer[20];
     int year_start, month_start, day_start, year_end, month_end, day_end;
-    double weight;
+    double importance;
     double quantity;
     int reminder;
+
+    Time current;
+    initTime(&current);
+
 
     clear();
     echo();
@@ -39,8 +139,8 @@ void add_schedule() {
 
 	// 가중치 입력
     while (1) {
-        if (get_input("Enter weight (1~5): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%lf", &weight) == 1 && (weight == 1 || weight == 2 || weight == 3 || weight == 4 || weight == 5)) {
+        if (get_input("Enter weight (0~5): ", buffer, sizeof(buffer)) == -1) return;
+        if (sscanf(buffer, "%lf", &importance) == 1 && (importance == 0 || importance == 1 || importance == 2 || importance == 3 || importance == 4 || importance == 5)) {
             break;
         }
         popup_message("Invalid input. Please enter 1 - 5.");
@@ -79,12 +179,18 @@ void add_schedule() {
     new_event.date_end.year = year_end;
     new_event.date_end.month = month_end;
 	new_event.date_end.day = day_end;
-    new_event.weight = weight;
+    new_event.importance = importance;
     new_event.quantity = quantity;
     strncpy(new_event.details, details, sizeof(new_event.details));
-
+    calInterval(&new_event);
+    calDday(&new_event, current);
+    calWeight(&new_event, importance);
+    
     // 배열에 새 스케줄 추가
     events[event_count++] = new_event;
+
+    //Sort by Weight
+    sortTodo(events, event_count);
 
     popup_message("Schedule successfully added!");
 }

@@ -15,6 +15,7 @@ void handleDateChangeSignal(int signal, siginfo_t *info, void *context) {
     if (signal == SIGUSR1) {
         
         signalresetHabits();
+        updateDdayAndWeights(events, event_count);
         draw_title();
         draw_main_menu();
         draw_lists();       

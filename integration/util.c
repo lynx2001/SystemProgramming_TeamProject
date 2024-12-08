@@ -140,3 +140,18 @@ int get_input(const char *prompt, char *buffer, int size) {
 
     return 1;
 }
+
+//Sort By Weight
+int compareByWeight(const void* a, const void* b) {
+    const Event* todoA = (const Event*)a;
+    const Event* todoB = (const Event*)b;
+
+    if (todoA->weight < todoB->weight) return 1;
+    if (todoA->weight > todoB->weight) return -1;
+    return 0;
+}
+
+//QuickSort
+void sortTodo(Event* event_t, int count) {
+    qsort(event_t, count, sizeof(Event), compareByWeight);
+}
