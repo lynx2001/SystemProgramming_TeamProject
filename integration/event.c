@@ -69,13 +69,17 @@ void loadEvents() {
         return;
     }
 
+    char buffer[512];
+    event_count = 0;
+	
     // 파일이 존재하는 경우, 파일에서 값 읽기
     if (fscanf(file, "%d", &last_event_id) != 1) {   // 읽을 값이 없는 경우
         last_event_id = 0;
     }
-    
-    char buffer[512];
-    event_count = 0;
+    else // 읽을 값이 있는 경우
+    {
+        fgets(buffer, sizeof(buffer), file);
+    }
 
     while (fgets(buffer, sizeof(buffer), file) && event_count < MAX_EVENTS) {
         Event *event = &events[event_count];
