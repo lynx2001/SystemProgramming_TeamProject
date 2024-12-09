@@ -45,6 +45,7 @@
 - 기존 ```event_submenu()```, ```habit_submenu()```에 통합되어 있던 ui 코드를 ```display.c```에 ```draw_event_screen()```, ```draw_habit_screen()```로 분리
 - ```handle_resize(int sig)```에서는 ui 함수만 호출
 - 단, 서브메뉴 내부의 기능을 선택한 때(```addEvents()``` 등이 호출된 상태)에는 핸들러가 작동하지 않도록 ```DEFAULT_SCREEN``` 화면 상수를 추가 (추후 이 경우에도 작동하도록 변경 가능성 있음)
+- 서브-서브 함수 ui 오류 해결해야함
 
 ## calendar 추가
 - 변경점
@@ -61,3 +62,7 @@
 - 오류(12/8 01:35)
   - 캘린더 화면 출력 후 이벤트 추가하려 할 시 오류 발생
   - 이벤트 제목과 날짜를 입력하지 않았는데 invalid input이라는 문구를 벗어날 수 없음.
+
+## reminder
+- 오류
+	- 지나간 일정 표시됨
