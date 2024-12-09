@@ -49,6 +49,7 @@ void calInterval(Event* event_t) {
             }
         }
     }
+    event_t->interval++;
 }
 
 //Dday Calculation
@@ -173,18 +174,26 @@ void add_schedule() {
     Event new_event;
     new_event.id = ++last_event_id;
     strncpy(new_event.title, title, sizeof(new_event.title));
+
     new_event.date_start.year = year_start;
     new_event.date_start.month = month_start;
     new_event.date_start.day = day_start;
+    new_event.date_start.hour = 0;
+    new_event.date_start.minute = 0;
+
     new_event.date_end.year = year_end;
     new_event.date_end.month = month_end;
 	new_event.date_end.day = day_end;
+    new_event.date_end.hour = 0;
+    new_event.date_end.minute = 0;
+
     new_event.importance = importance;
-    new_event.quantity = quantity;
+    new_event.reminder = reminder;
     strncpy(new_event.details, details, sizeof(new_event.details));
     calInterval(&new_event);
     calDday(&new_event, current);
     calWeight(&new_event, importance);
+    new_event.quantity = quantity / new_event.interval;
     
     // 배열에 새 스케줄 추가
     events[event_count++] = new_event;
