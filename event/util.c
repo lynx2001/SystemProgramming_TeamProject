@@ -1,51 +1,177 @@
-// util.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ncurses.h>
 #include "global.h"
 #include "util.h"
-#include <stdio.h>
+#include "display.h"
+#include "event.h"
+#include "habit.h"
+#include "calendar/calendar.h"
+#include "calendar/calendar_control.h"
 
-// 파일 init
-void check_and_create_file(const char *filename) {
-    FILE *file = fopen(filename, "r");
-    if (file) {
-        fclose(file);
-        printf("파일이 이미 존재합니다: %s\n", filename);
-    } else {
-        // 파일이 존재하지 않는 경우, 파일 생성
-        file = fopen(filename, "w");
-        if (file) {
-            printf("파일이 생성되었습니다: %s\n", filename);
-            fclose(file);
-        } else {
-            perror("파일 생성 실패");
-        }
-    }
+// popup_message 호출 여부를 기록하는 전역 변수
+bool popup_message_called = false;
+
+// 팝업 메시지 출력 함수
+void popup_message(const char *message) {
+    int height, width;
+    getmaxyx(stdscr, height, width);  // 터미널 크기 가져오기
+	
+	popup_message_called = true;  // 팝업 실행 표시
+	
+	// 현재 화면 백업
+    WINDOW *backup = dupwin(stdscr);  // 현재 화면 복사
+
+    // 팝업 윈도우 생성
+    WINDOW *popup = newwin(5, width / 2, height / 2 - 2, width / 4);
+    box(popup, 0, 0);  // 테두리 그리기
+    mvwprintw(popup, 2, (width / 2 - strlen(message)) / 2, "%s", message);  // 메시지 출력
+    wrefresh(popup);  // 팝업 윈도우 갱신
+
+    flushinp();       // 입력 버퍼 초기화
+    wgetch(popup);    // 팝업 윈도우에서 사용자 입력 대기
+
+    delwin(popup);    // 팝업 윈도우 삭제
+	clear();
+
+    // 이전 화면 복구
+    overwrite(backup, stdscr);  // 백업한 내용을 현재 화면에 복사
+    delwin(backup);             // 백업 윈도우 삭제
+	refresh();                  // 화면 갱신
 }
 
-// last_id 가져오기
-int get_last_id() {
-    FILE *file = fopen(ID_FILE, "r");
-    int id = 0;  // 기본 ID 값
+
+bool validateDate(int year, int month, int day) {
+    // 기본 범위 검사
+    if (year < 1900 || year > 2100 ||
+        month < 1 || month > 12 ||
+        day < 1 || day > 31) {
+        return false;
+    }
+
+    // 월별 일수 검사
+    int daysInMonth[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     
-    if (file == NULL) {
-        return id;
+    // 윤년 처리
+    if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+        daysInMonth[2] = 29;
     }
 
-    if (fscanf(file, "%d", &id) != 1) { // 읽기 오류
-        printf("ID 파일 읽기 오류, 기본값 0 사용\n");
-        id = 0;
-    }
-
-    fclose(file);
-    return id;
+    return day <= daysInMonth[month];
 }
 
-// last_id 기록
-void save_id(int id) {
-    FILE *file = fopen(ID_FILE, "w");   // write 방식 확인
-    if (file == NULL) {
-        perror("ID 파일 저장 오류");
-        return;
+bool validateTime(int hour, int minute) {
+    // 24:00은 특별한 경우로 허용
+    if (hour == 24) {
+        return minute == 0;
     }
-    fprintf(file, "%d", id);
-    fclose(file);
+    
+    // 일반적인 시간 범위 검사
+    return hour >= 0 && hour < 24 &&
+           minute >= 0 && minute < 60;
+}
+
+//화면 크기 조절 감지 핸들러
+void handle_resize(int sig) {
+    if (current_screen == DEFAULT_SCREEN) {
+		return;
+	}
+
+	endwin();
+    refresh();
+    clear();
+
+	// 터미널 크기 갱신
+	int height, width;
+	getmaxyx(stdscr, height, width);
+
+	(void) height;
+	(void) width;
+	
+    if (current_screen == MAIN_SCREEN) {
+        draw_title();
+        draw_main_menu();
+        draw_lists();
+	} else if (current_screen == EVENT_SCREEN) {
+    	draw_event_screen();
+	} else if (current_screen == HABIT_SCREEN) {
+        draw_habit_screen();
+    } else if (current_screen == CALENDAR_SCREEN) {
+        color = ((color + 2) % 3);
+        prev_first_color = cur_first_color;
+        cur_first_color = color;
+        show_calendar();
+    }
+
+	refresh();
+}
+
+/**
+ * get_input: 입력을 받고 뒤로가기 (:b)을 감지
+ * @param prompt: 입력 전 출력할 메시지
+ * @param buffer: 입력값을 저장할 버퍼
+ * @param size: 버퍼 크기
+ * @return 1: 정상 입력
+ *        -1: 뒤로가기 (:b 입력)
+ */
+
+int get_input(const char *prompt, char *buffer, int size) {
+    static int current_y = 5;
+
+    mvprintw(LINES - 1, 0, ":b return to previous page");
+    
+    if (popup_message_called) {
+        move(current_y + 1, 0);  // 현재 줄 삭제
+        clrtoeol();
+        refresh();
+		popup_message_called = false;
+	} else {
+		current_y += 2;
+	}
+		
+	mvprintw(current_y, 10, "%s", prompt);
+    clrtoeol();
+    refresh();
+
+    // 사용자 입력
+    echo();
+    mvgetnstr(current_y + 1, 10, buffer, size);
+    noecho();
+
+    if (strcmp(buffer, ":b") == 0) {
+        return -1;
+    }
+
+    return 1;
+}
+
+//Sort By Weight
+int compareByWeight(const void* a, const void* b) {
+    const Event* todoA = (const Event*)a;
+    const Event* todoB = (const Event*)b;
+
+    if (todoA->weight < todoB->weight) return 1;
+    if (todoA->weight > todoB->weight) return -1;
+    return 0;
+}
+
+//QuickSort
+void sortTodo(Event* event_t, int count) {
+    qsort(event_t, count, sizeof(Event), compareByWeight);
+}
+
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+int daysInMonth(int month, int year) {
+    switch (month) {
+    case 4: case 6: case 9: case 11:
+        return 30;
+    case 2:
+        return isLeapYear(year) ? 29 : 28;
+    default:
+        return 31;
+    }
 }

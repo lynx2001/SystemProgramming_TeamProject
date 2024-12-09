@@ -2,47 +2,89 @@
 #define GLOBAL_H
 
 #define MAX_EVENTS 100
+#define MAX_HABITS 100
 #define EVENT_FILE "event.txt"
-#define ID_FILE "last_id.txt"
+#define HABIT_FILE "habit.txt"
 
-typedef struct {
-    int year;
-    int month;
-    int day;
-    int hour;
-    int minute;
-} Time;
+// 화면 상수
+#define MAIN_SCREEN 0
+#define EVENT_SCREEN 1
+#define HABIT_SCREEN 2
+#define CALENDAR_SCREEN 3
+#define DEFAULT_SCREEN 4
 
+// 구조체 정의
 typedef struct {
     int id;
     char title[50];
-    Time date_start;
-    Time date_end;
-    int interval;    // 마감일 - 시작일
+    struct {
+        int year, month, day, hour, minute;
+    } date_start, date_end;
+    int importance;     // 0 ~ 5 사이 정수
+    double quantity;    // 하루 당 분량
+    double interval;    // 마감일 - 시작일
     double Dday;        // 마감일 - 현재일(now)
-    double quantity;    // 입력된 값
     double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산) >> default : -1
+    int reminder;       // 리마인더
     char details[100];
 
-    /*
-    가중치 일정 입력 시 고려할 사항,
-    시프과제 3분할 -> 시프과제 1, 시프과제 2, 시프과제 3
-    예를 들어서 interval 3 -> 3분할 / 분량 90 -> 30 * 3아니고 그냥 90 3번
-    X    id - 3개로 쌓여야하고
-    X    title - 에 숫자 달아주기 (해도되고 안해도 되고)
-    O    Time 2개는 그대로(똑같아도 됨)
-    O    interval도 그대로
-    O    Dday도 그대로 (현재 시간을 확인하는 과정 필요 (HB))
-    O    가중치 - 3개 별개
-    O    분량 - 그대로
-    O    detail은 없는걸로
-
-    추가로 진행도가 title에 숫자 다는걸로 대체되어도 상관없음
+    /* default 정리 (일반 일정에 필요 없는 값)  >> 다 기본값 -1
+        quantity, importance, interval, weight
     */
 } Event;
 
+typedef struct {
+    int id;
+    char name[50];
+    int streak;
+    int is_done;    // 유지 일수
+} Habit;
+
+// 전역 변수 선언
 extern Event events[MAX_EVENTS];
 extern int event_count;
-extern int last_id;
+extern int last_event_id;
+
+extern Habit habits[MAX_HABITS];
+extern int habit_count;
+extern int last_habit_id;
+
+extern int current_screen;
+extern char last_checked_date[11];
 
 #endif
+
+// typedef struct {
+//     int id;
+//     char title[50];
+//     Time date_start;
+//     Time date_end;
+//     int importance;     // 0 ~ 5 사이 정수
+//     double quantity;    // 총 분량 / 총 일수 = 하루당 분량
+    
+//     // 아래는 계산되는 값
+//     double interval;    // 마감일 - 시작일
+//     double Dday;        // 마감일 - 현재일(now)
+//     double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산) >> default : -1
+
+//     char details[100];  // 상세 기록
+
+//     /* 계산 되는 값
+//     interval
+//     Dday
+//     weight
+//     */
+
+//     /* default 정리 (일반 일정에 필요 없는 값)  >> 다 기본값 -1
+//     quantity
+//     importance
+//     interval
+//     weight
+//     */
+
+//    /* 저장 필드 값 변경 사항 기록 */
+//    /*
+//    기존 : id|title|date_start|date_end|interval|Dday|weight|quantity|details
+//    변경 : id|title|date_start|date_end|importance|quantity|interval|Dday|weight|details
+//    */
+// } Event;
