@@ -60,7 +60,8 @@ int main() {
                 draw_calendar();        // 캘린더 출력
                 current_screen = MAIN_SCREEN; // 초기 화면으로 복귀
                 clear();
-
+                nodelay(stdscr, FALSE); // getch()를 차단 모드로 설정
+		
                 draw_title();           // 타이틀 출력
                 draw_main_menu();       // 메뉴 유지
                 draw_lists();           // 리스트 갱신
