@@ -63,7 +63,7 @@ int draw_calendar()
 
         switch(ch)
         {
-            case('q'): case('Q'): // 종료   
+            case('b'): case('B'): // 종료   
                 endwin();
                 return 0;
             case('m'): case('M'): // 달 기준 캘린더
