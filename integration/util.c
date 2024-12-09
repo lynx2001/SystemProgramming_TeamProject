@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
 #include "global.h"
@@ -158,4 +159,19 @@ int compareByWeight(const void* a, const void* b) {
 //QuickSort
 void sortTodo(Event* event_t, int count) {
     qsort(event_t, count, sizeof(Event), compareByWeight);
+}
+
+int isLeapYear(int year) {
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+int daysInMonth(int month, int year) {
+    switch (month) {
+    case 4: case 6: case 9: case 11:
+        return 30;
+    case 2:
+        return isLeapYear(year) ? 29 : 28;
+    default:
+        return 31;
+    }
 }

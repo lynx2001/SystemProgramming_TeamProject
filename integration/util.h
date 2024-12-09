@@ -22,4 +22,7 @@ int get_input(const char *prompt, char *buffer, int size);
 int compareByWeight(const void* a, const void* b);
 void sortTodo(Event* event_t, int count);
 
+int isLeapYear(int year);
+int daysInMonth(int month, int year);
+
 #endif
