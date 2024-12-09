@@ -56,7 +56,7 @@ int draw_calendar()
     while(1)
     {
         // 동작 설명 및 다음 실행할 동작 입력
-        mvprintw(LINES - 2, 0, "q: quit / m: monthly / w: weekly / d: daily");
+        mvprintw(LINES - 2, 0, "b: back / m: monthly / w: weekly / d: daily");
         move(LINES - 1, 0);
         refresh();
         ch = getch();
