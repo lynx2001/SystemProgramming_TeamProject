@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall
-LDFLAGS = -lncurses
+LDFLAGS = -lncurses -lpthread
 
 TARGET = project
 CALENDAR = ./calendar/calendar.o ./calendar/calendar_control.o ./calendar/calendar_display.o ./calendar/calendar_get_event.o
