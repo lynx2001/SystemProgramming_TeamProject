@@ -178,13 +178,13 @@ void add_schedule() {
     new_event.date_start.year = year_start;
     new_event.date_start.month = month_start;
     new_event.date_start.day = day_start;
-    new_event.date_start.hour = 0;
+    new_event.date_start.hour = 24;
     new_event.date_start.minute = 0;
 
     new_event.date_end.year = year_end;
     new_event.date_end.month = month_end;
 	new_event.date_end.day = day_end;
-    new_event.date_end.hour = 0;
+    new_event.date_end.hour = 24;
     new_event.date_end.minute = 0;
 
     new_event.importance = importance;
