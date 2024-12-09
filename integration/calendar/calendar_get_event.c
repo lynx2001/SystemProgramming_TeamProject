@@ -90,7 +90,7 @@ void get_line(char *line, struct info* e) {
         sscanf(token, "%d", &e->quantity);
     }
     // 필요 없는 데이터 건너뜀
-    for (int i = 0; i < 3; i++) { 
+    for (int i = 0; i < 4; i++) { 
         token = strtok(NULL, "|");
     }
     // 메모
