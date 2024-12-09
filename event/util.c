@@ -119,6 +119,12 @@ void handle_resize(int sig) {
 int get_input(const char *prompt, char *buffer, int size) {
     static int current_y = 5;
 
+    // 함수 호출 시 RESET 문자열을 입력하면 시작 y 위치 초기화
+    if (strcmp(prompt, "RESET") == 0) {
+        current_y = 5;
+        return 0; // 초기화만 수행하고 반환
+    }
+
     mvprintw(LINES - 1, 0, ":b return to previous page");
     
     if (popup_message_called) {

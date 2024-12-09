@@ -39,7 +39,6 @@ void event_submenu() {
 			draw_event_screen();
 		} else if (choice == '4') {
 			current_screen = DEFAULT_SCREEN;
-            printf("Auto Scheduling here\n");
 			add_schedule();  // 오토 스케줄링
 			clear();
 
@@ -98,7 +97,6 @@ void loadEvents() {
     }
 
     fclose(file);
-    printf("Debug: %d개의 이벤트가 로드되었습니다.\n", event_count);
 }
 
 // 일정 txt에 저장하기
@@ -114,7 +112,7 @@ void saveEvents() {
 
     for (int i = 0; i < event_count; i++) {
         Event *event = &events[i];
-        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%.2d|%.2lf|%.2lf|%.2lf|%.2lf|%d|%s\n",
+        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%d|%.2lf|%.2lf|%.2lf|%.2lf|%d|%s\n",
                 event->id, event->title,
                 event->date_start.year, event->date_start.month, event->date_start.day,
                 event->date_start.hour, event->date_start.minute,
@@ -126,7 +124,6 @@ void saveEvents() {
     }
 
     fclose(file);
-    printf("Debug: 일정 저장이 완료되었습니다.\n");
 }
 
 // 일정 추가
@@ -136,94 +133,113 @@ void addEvents() {
         return;
     }
 
-    Time current;
-    initTime(&current);
-    
-    Event event;
+    // curreny_y 초기화 (util.c에 정의된 함수)
+    get_input("RESET", NULL, 0);
+
+    // 초기화 된 이벤트 생성
+    Event event = {0};
     char buffer[128];
-    int year, month, day, hour, minute;
-    int reminder;
+    int current_step = 0;
 
     clear();
     echo();
 
     mvprintw(2, 10, "Add Event:");
+    while (current_step < 7) {
+        switch (current_step) {
+            memset(buffer, 0, sizeof(buffer)); // buffer 초기화
+            case 0:  // 제목 입력
+                if (get_input("Enter event title: ", event.title, sizeof(event.title)) == -1) return;
+                // 제목이 빈 경우나 공백으로만 이루어진 경우 처리
+                if (strlen(event.title) == 0 || strspn(event.title, " \t\r\n") == strlen(event.title)) {
+                    popup_message("Cannot be empty or whitespace only. Please try again.");
+                } else {
+                    current_step++;
+                }
+                break;
 
-    // 제목 입력
-    if (get_input("Enter event title: ", event.title, sizeof(event.title)) == -1) return;
+            case 1:  // 시작 날짜 입력
+                if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+                if (sscanf(buffer, "%d %d %d", &event.date_start.year, &event.date_start.month, &event.date_start.day) == 3 && validateDate(event.date_start.year, event.date_start.month, event.date_start.day)) {
+                    current_step++;
+                } else {
+                    popup_message("Invalid start date. Please try again.");
+                }
+                break;
 
-    // 시작 날짜 입력
-    while (1) {
-        if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d %d", &year, &month, &day) == 3 && validateDate(year, month, day)) {
-            event.date_start.year = year;
-            event.date_start.month = month;
-            event.date_start.day = day;
-            break;
-        }
-        popup_message("Invalid start date. Please try again.");
-    }
+            case 2:  // 시작 시간 입력
+                if (get_input("Enter start time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
+                if (buffer[0] == '\0') {
+                    event.date_start.hour = 24;
+                    event.date_start.minute = 0;
+                    current_step++;
+                } else if (sscanf(buffer, "%d %d", &event.date_start.hour, &event.date_start.minute) == 2 && validateTime(event.date_start.hour, event.date_start.minute)) {
+                    current_step++;
+                } else {
+                    popup_message("Invalid start time. Please try again.");
+                }
+                break;
 
-    // 시작 시간 입력
-    while (1) {
-        if (get_input("Enter start time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d", &hour, &minute) == 2 && validateTime(hour, minute)) {
-            event.date_start.hour = hour;
-            event.date_start.minute = minute;
-            break;
-        }
-        popup_message("Invalid start time. Please try again.");
-    }
+            case 3:  // 종료 날짜 입력
+                if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
+                if (sscanf(buffer, "%d %d %d", &event.date_end.year, &event.date_end.month, &event.date_end.day) == 3 && validateDate(event.date_end.year, event.date_end.month, event.date_end.day)) {
+                    current_step++;
+                } else {
+                    popup_message("Invalid end date. Please try again.");
+                }
+                break;
 
-    // 종료 날짜 입력
-    while (1) {
-        if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d %d", &year, &month, &day) == 3 && validateDate(year, month, day)) {
-            event.date_end.year = year;
-            event.date_end.month = month;
-            event.date_end.day = day;
-            break;
-        }
-        popup_message("Invalid end date. Please try again.");
-    }
+            case 4:  // 종료 시간 입력
+                if (get_input("Enter end time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
+                if (buffer[0] == '\0') {
+                    event.date_start.hour = 24;
+                    event.date_start.minute = 0;
+                    current_step++;
+                } else if (sscanf(buffer, "%d %d", &event.date_end.hour, &event.date_end.minute) == 2 && validateTime(event.date_end.hour, event.date_end.minute)) {
+                    current_step++;
+                } else {
+                    popup_message("Invalid end time. Please try again.");
+                }
+                break;
 
-    // 종료 시간 입력
-    while (1) {
-        if (get_input("Enter end time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d", &hour, &minute) == 2 && validateTime(hour, minute)) {
-            event.date_end.hour = hour;
-            event.date_end.minute = minute;
-            break;
-        }
-        popup_message("Invalid end time. Please try again.");
-    }
+            case 5:  // 리마인더 입력
+                if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
+                if (sscanf(buffer, "%d", &event.reminder) == 1 && (event.reminder == 0 || event.reminder == 1)) {
+                    current_step++;
+                } else {
+                    popup_message("Invalid reminder. Please try again.");
+                }
+                break;
+            case 6:  // 세부 사항 입력
+                if (get_input("Enter event details: ", event.details, sizeof(event.details)) == -1) return;
+                current_step++;
+                break;
 
-    // Dday 게산
-    calDday(&event, current);
-
-    // 기타 값 입력 (기본값 설정)
-    event.importance = 0;	// 일반 일정은 중요도 -1로 설정, 오토 스케줄링 일정은 0-5 사이 입력 아닌가요?
-	event.quantity = -1;
-    event.interval = -1;
-    event.weight = -1;
-
-    // 세부 사항 입력
-    if (get_input("Enter event details: ", event.details, sizeof(event.details)) == -1) return;
-
-    // 리마인더 입력 (Question? 저장해야 하는 필드인가요)
-    while (1) {
-        if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d", &reminder) == 1 && (reminder == 0 || reminder == 1)) {
-            break;
-        }
-        popup_message("Invalid input. Please enter 1 or 0.");
-    }
-
+			default:
+				return;
+		}
+	}
     noecho();
 
+    // Dday 계산
+    Time current;
+    initTime(&current);
+    calDday(&event, current);   // schedule.c 에서 정의된 함수
+
     // Event 저장
-    event.id = ++last_event_id;
-    events[event_count++] = event;
+    Event new_event;
+    new_event.id = ++last_event_id;
+    strncpy(new_event.title, event.title, sizeof(new_event.title));
+    new_event.date_start = event.date_start;
+    new_event.date_end = event.date_end;
+    new_event.importance = -1;
+    new_event.quantity = -1;
+    new_event.interval = -1;
+    new_event.Dday = event.Dday;
+    new_event.weight = -1;
+    new_event.reminder = event.reminder;
+    strncpy(new_event.details, event.details, sizeof(new_event.details));
+    events[event_count++] = new_event;
 
     popup_message("Event successfully added!");  // 성공 메시지 출력
 }
