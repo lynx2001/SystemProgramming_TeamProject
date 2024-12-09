@@ -25,6 +25,7 @@ typedef struct {
     double interval;    // 마감일 - 시작일
     double Dday;        // 마감일 - 현재일(now)
     double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산) >> default : -1
+    int reminder;       // 리마인더
     char details[100];
 
     /* default 정리 (일반 일정에 필요 없는 값)  >> 다 기본값 -1

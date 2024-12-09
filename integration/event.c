@@ -70,7 +70,7 @@ void loadEvents() {
     }
 
     // 파일이 존재하는 경우, 파일에서 값 읽기
-    if (fscanf(file, "%d", last_event_id) != 1) {   // 읽을 값이 없는 경우
+    if (fscanf(file, "%d", &last_event_id) != 1) {   // 읽을 값이 없는 경우
         last_event_id = 0;
     }
     
@@ -80,13 +80,14 @@ void loadEvents() {
     while (fgets(buffer, sizeof(buffer), file) && event_count < MAX_EVENTS) {
         Event *event = &events[event_count];
         sscanf(buffer,
-               "%d|%49[^|]|%d-%d-%d %d:%d|%d-%d-%d %d:%d|%d|%lf|%lf|%lf|%lf|%99[^\n]",
+               "%d|%49[^|]|%d-%d-%d %d:%d|%d-%d-%d %d:%d|%d|%lf|%lf|%lf|%lf|%d|%99[^\n]",
                &event->id, event->title,
                &event->date_start.year, &event->date_start.month, &event->date_start.day,
                &event->date_start.hour, &event->date_start.minute,
                &event->date_end.year, &event->date_end.month, &event->date_end.day,
                &event->date_end.hour, &event->date_end.minute,
-               &event->importance, &event->quantity, &event->interval, &event->Dday, &event->weight,
+               &event->importance, &event->quantity, &event->interval,
+               &event->Dday, &event->weight, &event->reminder,
                event->details);
 
         event_count++;
@@ -109,13 +110,14 @@ void saveEvents() {
 
     for (int i = 0; i < event_count; i++) {
         Event *event = &events[i];
-        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%.2d|%.2lf|%.2lf|%.2lf|%.2lf|%s\n",
+        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%.2d|%.2lf|%.2lf|%.2lf|%.2lf|%d|%s\n",
                 event->id, event->title,
                 event->date_start.year, event->date_start.month, event->date_start.day,
                 event->date_start.hour, event->date_start.minute,
                 event->date_end.year, event->date_end.month, event->date_end.day,
                 event->date_end.hour, event->date_end.minute,
-                event->importance, event->quantity, event->interval, event->Dday, event->weight,
+                event->importance, event->quantity, event->interval,
+                event->Dday, event->weight, event->reminder,
                 event->details);
     }
 
@@ -130,6 +132,9 @@ void addEvents() {
         return;
     }
 
+    Time current;
+    initTime(&current);
+    
     Event event;
     char buffer[128];
     int year, month, day, hour, minute;
@@ -189,17 +194,13 @@ void addEvents() {
         popup_message("Invalid end time. Please try again.");
     }
 
-    // 중요도 입력
-    /*
-	if (get_input("Enter importance (0-5): ", buffer, sizeof(buffer)) == -1) return;
-    sscanf(buffer, "%d", &event.importance);
-	*/
+    // Dday 게산
+    calDday(&event, current);
 
-    // 기타 값 입력 (기본값 -1 설정)
+    // 기타 값 입력 (기본값 설정)
     event.importance = 0;	// 일반 일정은 중요도 -1로 설정, 오토 스케줄링 일정은 0-5 사이 입력 아닌가요?
 	event.quantity = -1;
     event.interval = -1;
-    event.Dday = -1;
     event.weight = -1;
 
     // 세부 사항 입력
@@ -308,6 +309,10 @@ void modifyEvents() {
         // 세부 사항 수정
         mvprintw(13 + event_count, 12, "Modify details (current: %s): ", event->details);
         getstr(event->details);
+
+        // 리마인더 수정
+        mvprintw(14 + event_count, 12, "Modify reminder (current: %d): ", event->reminder);
+        scanw("%d", &event->reminder);
 
         popup_message("Event successfully modified!"); // 성공 메시지 출력
     } else {
