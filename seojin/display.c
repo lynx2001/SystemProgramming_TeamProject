@@ -123,3 +123,37 @@ void draw_habit_screen() {
 	refresh();
 }
 
+void draw_add_event_ui(EventInputState *state) {
+    clear();
+    mvprintw(2, 10, "Add Event:");
+
+    // 제목 출력
+    mvprintw(4, 12, "Enter event title: %s", state->title[0] ? state->title : "(not set)");
+
+    // 시작 날짜 출력
+    mvprintw(6, 12, "Enter start date (YYYY MM DD): %04d-%02d-%02d", state->date_start.year ? state->date_start.year : 0,
+             state->date_start.month ? state->date_start.month : 0,
+             state->date_start.day ? state->date_start.day : 0);
+
+    // 시작 시간 출력
+    mvprintw(8, 12, "Enter start time (HH MM): %02d:%02d", state->date_start.hour ? state->date_start.hour : 0,
+             state->date_start.minute ? state->date_start.minute : 0);
+
+    // 종료 날짜 출력
+    mvprintw(10, 12, "Enter end date (YYYY MM DD): %04d-%02d-%02d", state->date_end.year ? state->date_end.year : 0,
+             state->date_end.month ? state->date_end.month : 0,
+             state->date_end.day ? state->date_end.day : 0);
+
+    // 종료 시간 출력
+    mvprintw(12, 12, "Enter end time (HH MM): %02d:%02d", state->date_end.hour ? state->date_end.hour : 0,
+             state->date_end.minute ? state->date_end.minute : 0);
+
+    // 리마인더 출력
+    mvprintw(14, 12, "Set reminder (1: Yes, 0: No): %d", state->reminder);
+    
+	// 세부 사항 출력
+    mvprintw(16, 12, "Enter event details: %s", state->details[0] ? state->details : "(not set)");
+
+    refresh();
+}
+

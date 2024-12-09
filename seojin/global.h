@@ -10,6 +10,7 @@
 #define EVENT_SCREEN 1
 #define HABIT_SCREEN 2
 #define DEFAULT_SCREEN 4
+#define EVENT_ADD 5
 
 typedef struct {
     int year;

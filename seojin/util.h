@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <ncurses.h>
 #include <string.h>
+#include "event.h"
 
 extern bool popup_message_called;
 
@@ -15,5 +16,8 @@ bool validateTime(int hour, int minute);
 void popup_message(const char *message);
 void handle_resize(int sig);
 int get_input(const char *prompt, char *buffer, int size);
+void draw_add_event_ui(EventInputState *state);
+
+extern EventInputState current_input_state;  // 전역 변수 선언
 
 #endif

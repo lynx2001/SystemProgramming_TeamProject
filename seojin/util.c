@@ -80,13 +80,15 @@ void handle_resize(int sig) {
     refresh();
     clear();
 
+	flushinp();	// 입력 버퍼 비우기
+
 	// 터미널 크기 갱신
 	int height, width;
 	getmaxyx(stdscr, height, width);
 
 	(void) height;
 	(void) width;
-	
+
     if (current_screen == MAIN_SCREEN) {
         draw_calendar_screen();
         draw_main_menu();
@@ -95,7 +97,9 @@ void handle_resize(int sig) {
     	draw_event_screen();
 	} else if (current_screen == HABIT_SCREEN) {
         draw_habit_screen();
-    }
+    } else if (current_screen == EVENT_ADD && active_state) {
+		draw_add_event_ui(active_state);
+	}
 
 	refresh();
 }
@@ -110,7 +114,7 @@ void handle_resize(int sig) {
  */
 
 int get_input(const char *prompt, char *buffer, int size) {
-    static int current_y = 5;
+    static int current_y = 2;
 
     mvprintw(LINES - 1, 0, ":b return to previous page");
     
@@ -123,13 +127,13 @@ int get_input(const char *prompt, char *buffer, int size) {
 		current_y += 2;
 	}
 		
-	mvprintw(current_y, 10, "%s", prompt);
-    clrtoeol();
-    refresh();
+	//mvprintw(current_y, 10, "%s", prompt);
+    //clrtoeol();
+    //refresh();
 
     // 사용자 입력
     echo();
-    mvgetnstr(current_y + 1, 10, buffer, size);
+    mvgetnstr(current_y + 1, 12, buffer, size);
     noecho();
 
     if (strcmp(buffer, ":b") == 0) {
@@ -138,3 +142,9 @@ int get_input(const char *prompt, char *buffer, int size) {
 
     return 1;
 }
+
+void reset_input_state(EventInputState *state) {
+    memset(state, 0, sizeof(EventInputState));
+    state->current_step = 0;  // 첫 단계로 초기화
+}
+
