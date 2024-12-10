@@ -181,79 +181,59 @@ void change_habit() {
         return;
     }
 
-    // 1. 현재 존재하는 습관 목록을 필드로 생성
-    char habit_choices[MAX_HABITS][100] = {0};
-    for (int i = 0; i < habit_count; i++) {
-        snprintf(habit_choices[i], sizeof(habit_choices[i]), "%d. %s (Streak: %d)", 
-                 i + 1, habits[i].name, habits[i].streak);
-    }
-
-    char choice_buffer[10] = {0};
-    InputField selection_fields[] = {
-        {"Select a habit to change", choice_buffer, sizeof(choice_buffer), NULL}
-    };
-
-    UIScreen selection_screen = {
-        "Change Habit",
-        selection_fields,
-        sizeof(selection_fields) / sizeof(selection_fields[0])
-    };
-
-    // 2. 현재 습관 리스트를 화면에 출력
+    // 1. 현재 존재하는 습관 목록을 출력
     clear();
     mvprintw(2, 10, "Change Habit:");
+    mvprintw(4, 10, "Select a habit to change:");
+
     for (int i = 0; i < habit_count; i++) {
-        mvprintw(4 + i, 10, "%s", habit_choices[i]);
+        mvprintw(6 + i, 10, "%d. %s (Streak: %d)", i + 1, habits[i].name, habits[i].streak);
     }
-    mvprintw(5 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
+
+    mvprintw(7 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
     refresh();
 
-    // 3. 선택 화면 및 사용자 입력 처리
-    active_screen = &selection_screen;
-    current_step = 0;
-
-    if (process_user_input(&selection_screen) != 0) {
-        popup_message("Change canceled.");
-        active_screen = NULL;
-        return;
+    // 2. 사용자 입력 처리
+    char choice_buffer[128] = {0};
+    if (get_input(choice_buffer, sizeof(choice_buffer)) == -1) {
+        return; // 뒤로가기 처리
     }
 
-    // 4. 선택된 습관 처리
     int choice = atoi(choice_buffer);
     if (choice < 1 || choice > habit_count) {
         popup_message("Invalid choice. Please try again.");
-        active_screen = NULL;
         return;
     }
 
     Habit *habit = &habits[choice - 1];
 
-    // 5. 수정 UI 준비
+    // 3. 수정 UI 준비
     char new_name[50] = {0};
     snprintf(new_name, sizeof(new_name), "%s", habit->name);
 
-    InputField modify_fields[] = {
+    InputField fields[] = {
         {"Modify habit name", new_name, sizeof(new_name), NULL}
     };
 
     UIScreen modify_screen = {
-        "Modify Habit",
-        modify_fields,
-        sizeof(modify_fields) / sizeof(modify_fields[0])
+        "Change Habit",
+        fields,
+        sizeof(fields) / sizeof(fields[0])
     };
 
-    active_screen = &modify_screen;
+    // 4. 공통 입력 처리
+    active_screen = &modify_screen; // 현재 UI 화면 설정
     current_step = 0;
 
-    // 6. 사용자 입력 처리 및 데이터 반영
     if (process_user_input(&modify_screen) == 0) {
+        // 5. 수정 데이터 반영
         strncpy(habit->name, new_name, sizeof(habit->name));
         popup_message("Habit successfully changed!");
     } else {
         popup_message("Change canceled.");
     }
 
-    active_screen = NULL;
+    active_screen = NULL; // 현재 UI 화면 초기화
 }
 
 // 습관 삭제 함수
