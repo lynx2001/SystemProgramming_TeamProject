@@ -6,12 +6,10 @@
 #include "scheduler.h"
 #include "display.h"
 #include <stdlib.h>
+
 Event events[MAX_EVENTS];
 int event_count = 0;  // 현재 저장된 이벤트 개수
 int last_id = 0;      // 마지막으로 부여된 이벤트 ID
-
-// 전역 변수 정의
-EventInputState *active_state = NULL;
 
 void add_event() {
     char title[50] = {0}, details[100] = {0};
