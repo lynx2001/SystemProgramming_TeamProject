@@ -93,7 +93,7 @@ void draw_lists() {
     refresh();
 }
 
-// 일정 관리 서브메뉴 화면
+// 일정 관리 서브메뉴 화면 출력
 void draw_event_screen() {
     clear();
     int height, width;
@@ -108,7 +108,7 @@ void draw_event_screen() {
 	refresh();
 }
 
-// 습관 관리 서브메뉴 화면
+// 습관 관리 서브메뉴 화면 출력
 void draw_habit_screen() {
     clear();
     int height, width;
@@ -123,6 +123,7 @@ void draw_habit_screen() {
 	refresh();
 }
 
+// 서브-서브 화면 출력
 void draw_ui_screen(const UIScreen *screen, int current_step) {
     clear();
 
