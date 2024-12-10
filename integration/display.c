@@ -149,3 +149,29 @@ void draw_habit_screen() {
     
 	refresh();
 }
+
+// 서브-서브 화면 출력
+void draw_ui_screen(const UIScreen *screen, int current_step) {
+    clear();
+
+    mvprintw(2, 10, "%s", screen->title);  // 화면 제목 출력
+
+    for (int i = 0; i < screen->field_count; i++) {
+        mvprintw(4 + i * 3, 10, "%s:", screen->fields[i].prompt);
+
+		if (current_step == i) {
+            // 현재 입력 중인 필드
+            mvprintw(5 + i * 3, 12, "> %s", screen->fields[i].buffer);
+        } else {
+            // 다른 필드는 그대로 출력
+            mvprintw(5 + i * 3, 12, "  %s", screen->fields[i].buffer);
+        }
+	}
+	
+	int height, width;
+    getmaxyx(stdscr, height, width);
+	(void) width;
+    mvprintw(height - 1, 0, ":b return to previous page");
+	
+	refresh();
+}
