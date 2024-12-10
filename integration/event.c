@@ -115,7 +115,7 @@ void saveEvents() {
 
     for (int i = 0; i < event_count; i++) {
         Event *event = &events[i];
-        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%.2d|%.2lf|%.2lf|%.2lf|%.2lf|%d|%s\n",
+        fprintf(file, "%d|%s|%d-%02d-%02d %02d:%02d|%d-%02d-%02d %02d:%02d|%d|%.2lf|%.2lf|%.2lf|%.2lf|%d|%s\n",
                 event->id, event->title,
                 event->date_start.year, event->date_start.month, event->date_start.day,
                 event->date_start.hour, event->date_start.minute,
@@ -127,7 +127,6 @@ void saveEvents() {
     }
 
     fclose(file);
-    printf("Debug: 일정 저장이 완료되었습니다.\n");
 }
 
 // 일정 추가
@@ -335,6 +334,9 @@ void deleteEvents() {
         events[i] = events[i + 1]; // 배열 재정렬
     }
     event_count--; // 이벤트 개수 감소
+
+    // 삭제된 이벤트 메모�� 초기화
+    memset(&events[event_count], 0, sizeof(Event));
 
     popup_message("Event successfully deleted!");
 
