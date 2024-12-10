@@ -289,51 +289,52 @@ void deleteEvents() {
         return;
     }
 
-    // 1. 현재 이벤트 리스트를 필드로 생성
-    char event_choices[MAX_EVENTS][100] = {0};
+    // 1. 현재 이벤트 목록 출력
+    clear();
+    mvprintw(2, 10, "Delete Event:");
+    mvprintw(4, 10, "Select an event to delete:");
+
     for (int i = 0; i < event_count; i++) {
-        snprintf(event_choices[i], sizeof(event_choices[i]), "%d. %s (Start: %04d-%02d-%02d %02d:%02d)", 
+        mvprintw(6 + i, 10, "%d. %s (Start: %04d-%02d-%02d %02d:%02d)", 
                  i + 1, events[i].title,
                  events[i].date_start.year, events[i].date_start.month, events[i].date_start.day,
                  events[i].date_start.hour, events[i].date_start.minute);
     }
 
-    char choice_buffer[10] = {0};
-    InputField fields[] = {
-        {"Select an event to delete", choice_buffer, sizeof(choice_buffer), validate_event_choice}
-    };
-
-    UIScreen screen = {"Delete Event", fields, sizeof(fields) / sizeof(fields[0])};
-
-    // 2. 현재 이벤트 리스트를 화면에 출력
-    clear();
-    mvprintw(2, 10, "Delete Event:");
-    for (int i = 0; i < event_count; i++) {
-        mvprintw(4 + i, 10, "%s", event_choices[i]);
-    }
-    mvprintw(5 + event_count, 10, "Enter the number of the event (or :b to go back):");
+    mvprintw(7 + event_count, 10, "Enter the number of the event (or :b to go back): ");
     refresh();
 
-    // 3. 사용자 입력 처리
-    active_screen = &screen;
-    current_step = 0;
-
-    if (process_user_input(&screen) == 0) {
-        // 4. 유효한 입력 처리
-        int choice = atoi(choice_buffer);
-        if (choice >= 1 && choice <= event_count) {
-            // 이벤트 삭제
-            for (int i = choice - 1; i < event_count - 1; i++) {
-                events[i] = events[i + 1];  // 배열 재정렬
-            }
-            event_count--;  // 이벤트 개수 감소
-            popup_message("Event successfully deleted!");
-        } else {
-            popup_message("Invalid choice!");
-        }
-    } else {
-        popup_message("Deletion canceled.");
+    // 2. 사용자 입력 처리
+    char buffer[128] = {0};
+    if (get_input(buffer, sizeof(buffer)) == -1) {
+        return; // 뒤로가기 처리
     }
 
-    active_screen = NULL;
+    int choice = atoi(buffer);
+    if (choice < 1 || choice > event_count) {
+        popup_message("Invalid choice. Please try again.");
+        return;
+    }
+
+    Event *event = &events[choice - 1];
+
+    // 3. 삭제 확인 팝업 메시지 준비
+    char confirmation[128] = "Delete \"";
+    strcat(confirmation, event->title);
+    strcat(confirmation, "\"? (y/n):");
+
+    // 팝업 확인
+    int confirm = popup_confirmation(confirmation);
+    if (confirm == 0) { // 취소
+        popup_message("Deletion canceled.");
+        return;
+    }
+
+    // 4. 이벤트 삭제
+    for (int i = choice - 1; i < event_count - 1; i++) {
+        events[i] = events[i + 1]; // 배열 재정렬
+    }
+    event_count--; // 이벤트 개수 감소
+
+    popup_message("Event successfully deleted!");
 }
