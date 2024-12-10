@@ -137,7 +137,7 @@ void add_habit() {
     char name[50] = {0};
 
     InputField fields[] = {
-        {"Enter habit name", name, sizeof(name), NULL} // 습관 이름은 유효성 검사 없음
+        {"Enter habit name", name, sizeof(name), NULL, 0} // 습관 이름은 유효성 검사 없음
     };
 
     UIScreen screen = {"Add Habit", fields, sizeof(fields) / sizeof(fields[0])};
@@ -212,7 +212,7 @@ void change_habit() {
     snprintf(new_name, sizeof(new_name), "%s", habit->name);
 
     InputField fields[] = {
-        {"Modify habit name", new_name, sizeof(new_name), NULL}
+        {"Modify habit name", new_name, sizeof(new_name), NULL, 0}
     };
 
     UIScreen modify_screen = {

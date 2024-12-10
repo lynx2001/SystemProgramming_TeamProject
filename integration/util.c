@@ -227,9 +227,18 @@ int process_user_input(UIScreen *screen) {
 			return -1;  // 뒤로가기 처리
         }
 
-		// 입력값이 비어 있으면 현재 필드의 값을 유지하고 넘어감
+		// 입력값이 비어 있으면 공백 허용 여부에 따라 처리
         if (strlen(buffer) == 0) {
-            current_step++;
+            if (screen->fields[current_step].allow_empty == 1) {    // 1인 경우 빈 입력 허용
+                // 시간 필드인 경우 24:00으로 설정
+                if (strcmp(screen->fields[current_step].prompt, "Enter start time (HH MM)") == 0 ||
+                    strcmp(screen->fields[current_step].prompt, "Enter end time (HH MM)") == 0) {
+                    strcpy(screen->fields[current_step].buffer, "24 00");
+                }
+                current_step++;
+            } else {    // 0인 경우 빈 입력 허용하지 않음
+                popup_message("Empty input is not allowed. Please try again.");
+            }
             continue;
         }
 

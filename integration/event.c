@@ -145,13 +145,13 @@ void addEvents() {
 
     // 입력 필드 정의
     InputField fields[] = {
-        {"Enter event title", event.title, sizeof(event.title), NULL}, // 제목은 유효성 검사 없음
-        {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper},
-        {"Enter start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper},
-        {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper},
-        {"Enter end time (HH MM)", end_time, sizeof(end_time), validate_time_wrapper},
-        {"Set reminder (1: Yes, 0: No)", reminder, sizeof(reminder), validate_reminder},
-        {"Enter event details", details, sizeof(details), NULL} // 세부 사항은 유효성 검사 없음
+        {"Enter event title", event.title, sizeof(event.title), NULL, 0},
+        {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 0},
+        {"Enter start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper, 1}, // 공백 허용
+        {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 0},
+        {"Enter end time (HH MM)", end_time, sizeof(end_time), validate_time_wrapper, 1}, // 공백 허용
+        {"Set reminder (1: Yes, 0: No)", reminder, sizeof(reminder), validate_reminder, 0},
+        {"Enter event details", details, sizeof(details), NULL, 1} // 공백 허용, 세부 사항은 유효성 검사 없음
     };
 
     // UI 화면 정의
@@ -243,14 +243,14 @@ void modifyEvents() {
     snprintf(reminder, sizeof(reminder), "%d", event->reminder);
 
     InputField fields[] = {
-        {"Modify title", title, sizeof(title), NULL},
-        {"Modify start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper},
-        {"Modify start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper},
-        {"Modify end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper},
-        {"Modify end time (HH MM)", end_time, sizeof(end_time), validate_time_wrapper},
-        {"Modify importance (range: 0-5)", importance, sizeof(importance), validate_importance},
-        {"Modify reminder (1: Yes, 0: No)", reminder, sizeof(reminder), validate_reminder},
-        {"Modify details", details, sizeof(details), NULL}
+        {"Modify title", title, sizeof(title), NULL, 1},
+        {"Modify start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 1},
+        {"Modify start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper, 1},
+        {"Modify end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 1},
+        {"Modify end time (HH MM)", end_time, sizeof(end_time), validate_time_wrapper, 1},
+        {"Modify importance (range: 0-5)", importance, sizeof(importance), validate_importance, 1},
+        {"Modify reminder (1: Yes, 0: No)", reminder, sizeof(reminder), validate_reminder, 1},
+        {"Modify details", details, sizeof(details), NULL, 1}
     };
 
     UIScreen screen = {"Modify Event", fields, sizeof(fields) / sizeof(fields[0])};

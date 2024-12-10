@@ -6,6 +6,7 @@ typedef struct {
     char *buffer;                // 사용자 입력 저장소
     int buffer_size;             // 입력 버퍼 크기
     _Bool (*validator)(const char *);  // 유효성 검사 함수 포인터
+    _Bool allow_empty;           // 빈 입력 허용 여부 (1이 허용)
 } InputField;
 
 typedef struct {

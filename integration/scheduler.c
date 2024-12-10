@@ -120,13 +120,13 @@ void add_schedule() {
     char importance_buffer[10] = {0}, quantity_buffer[10] = {0}, reminder_buffer[5] = {0};
 
     InputField fields[] = {
-        {"Enter schedule title", title, sizeof(title), NULL},
-        {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper},
-        {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper},
-        {"Enter importance (0-5)", importance_buffer, sizeof(importance_buffer), validate_importance},
-        {"Enter quantity (integer)", quantity_buffer, sizeof(quantity_buffer), validate_quantity},
-        {"Set reminder (1: Yes, 0: No)", reminder_buffer, sizeof(reminder_buffer), validate_reminder},
-        {"Enter details", details, sizeof(details), NULL}
+        {"Enter schedule title", title, sizeof(title), NULL, 0},
+        {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 0},
+        {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 0},
+        {"Enter importance (0-5)", importance_buffer, sizeof(importance_buffer), validate_importance, 0},
+        {"Enter quantity (integer)", quantity_buffer, sizeof(quantity_buffer), validate_quantity, 0},
+        {"Set reminder (1: Yes, 0: No)", reminder_buffer, sizeof(reminder_buffer), validate_reminder, 0},
+        {"Enter details", details, sizeof(details), NULL, 1} // 공백 허용
     };
 
     UIScreen screen = {
