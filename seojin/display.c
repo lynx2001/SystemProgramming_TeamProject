@@ -130,15 +130,27 @@ void draw_ui_screen(const UIScreen *screen, int current_step) {
     mvprintw(2, 10, "%s", screen->title);  // 화면 제목 출력
 
     for (int i = 0; i < screen->field_count; i++) {
-        mvprintw(4 + i * 3, 10, "%s:", screen->fields[i].prompt);
+        int y = 5 + i * 3;  // 프롬프트 위치 계산
+        int x = 10;
 
-		if (current_step == i) {
-            // 현재 입력 중인 필드
-            mvprintw(5 + i * 3, 12, "> %s", screen->fields[i].buffer);
+		mvprintw(4 + i * 3, 10, "%s:", screen->fields[i].prompt);
+
+		if (i == current_step) {  // 현재 입력 중인 필드
+            if (strlen(screen->fields[i].buffer) > 0) {
+                // 기존 값이 있는 경우
+                mvprintw(y, x + 2, "> %s", screen->fields[i].buffer);  // 기존 값 출력
+                mvprintw(y + 1, x + 2, "> ");  // 새로운 값 입력 위치
+            } else {
+                // 기존 값이 없는 경우
+                mvprintw(y, x + 2, "> ");  // 바로 새로운 값 입력 위치
+            }
         } else {
-            // 다른 필드는 그대로 출력
-            mvprintw(5 + i * 3, 12, "  %s", screen->fields[i].buffer);
+            // 다른 필드: 기존 값만 출력
+            if (strlen(screen->fields[i].buffer) > 0) {
+                mvprintw(y, x + 2, "  %s", screen->fields[i].buffer);  // 기존 값 출력
+            }
         }
+
 	}
 	
 	int height, width;
