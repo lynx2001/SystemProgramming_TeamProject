@@ -233,7 +233,8 @@ void change_habit() {
         popup_message("Change canceled.");
     }
 
-    active_screen = NULL; // 현재 UI 화면 초기화
+    // 5. UI 화면 초기화
+    active_screen = NULL;
 }
 
 // 습관 삭제 함수
@@ -269,42 +270,26 @@ void delete_habit() {
 
     Habit *habit = &habits[choice - 1];
 
-    // 3. 삭제 확인 UI 준비
+    // 3. 삭제 확인 메시지 출력
     char confirmation[128];
     snprintf(confirmation, sizeof(confirmation), "Delete \"%s\"? (y/n):", habit->name);
 
-    InputField fields[] = {
-        {"Confirm deletion (y/n)", confirmation, sizeof(confirmation), NULL}
-    };
-
-    UIScreen confirm_screen = {
-        "Delete Habit Confirmation",
-        fields,
-        sizeof(fields) / sizeof(fields[0])
-    };
-
-    active_screen = &confirm_screen;
-    current_step = 0;
-
-    // 4. 공통 입력 처리 및 삭제 결정
-    if (process_user_input(&confirm_screen) == 0) {
-        if (strcasecmp(fields[0].buffer, "y") == 0) {
-            // 5. 습관 삭제 처리
-            for (int i = choice - 1; i < habit_count - 1; i++) {
-                habits[i] = habits[i + 1];
-            }
-            habit_count--;
-            popup_message("Habit successfully deleted!");
-        } else {
-            popup_message("Deletion canceled.");
+    int confirm = popup_confirmation(confirmation);  // 사용자 확인 요청
+    if (confirm == 1) {
+        // 4. 습관 삭제 처리
+        for (int i = choice - 1; i < habit_count - 1; i++) {
+            habits[i] = habits[i + 1];
         }
+        habit_count--;
+
+        popup_message("Habit successfully deleted!");
     } else {
         popup_message("Deletion canceled.");
     }
 
-    active_screen = NULL; // UI 초기화
+	// 5. UI 화면 초기화
+    active_screen = NULL;
 }
-
 
 // 습관 성공 여부 입력
 void mark_habit_success() {
@@ -347,6 +332,9 @@ void mark_habit_success() {
         habit->is_done = 1;
         popup_message("Habit marked as success!");
     }
+
+	// 5. UI 화면 초기화
+    active_screen = NULL;
 }
 
 // 습관 관리 서브 메뉴
