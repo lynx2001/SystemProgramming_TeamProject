@@ -157,7 +157,7 @@ void show_small_month(int year, int month, struct winsize *wbuf)
     // 현재 창의 row, col 크기에 따라 각 요소의 위치를 자동으로 조절
     int title_row = max_rows / 10; 
     int title_col = (max_cols - strlen(month_year) - 5) / 2;
-	int header_col = max_cols / 10;
+	int header_col = max_cols / 12;
 	int y_coordinate[3] = {header_col, header_col * 5, header_col * 8};
 
 	// 월과 연도 출력
@@ -166,11 +166,11 @@ void show_small_month(int year, int month, struct winsize *wbuf)
     attroff(A_BOLD);
 
     // 일정표 상단 부분 출력
-	mvprintw(title_row + 2, header_col + (header_col*4) / 2 - 4, "date");
-	mvprintw(title_row + 2, header_col * 5 + (header_col*3) / 2 - 8, "schedule");
-	mvprintw(title_row + 2, header_col * 8 + (header_col) / 2 - 4, "time");
+	mvprintw(title_row + 2, header_col + (header_col*4) / 2 - 2, "date");
+	mvprintw(title_row + 2, header_col * 5 + (header_col*3) / 2 - 4, "schedule");
+	mvprintw(title_row + 2, header_col * 8 + (header_col*2) / 2 - 2, "time");
 
-	mvhline(title_row + 3, header_col, '-', header_col * 8);
+	mvhline(title_row + 3, header_col, '-', header_col * 10);
 
 	get_event_in_table(year, month, day, header_col, title_row + 4, y_coordinate);
 
