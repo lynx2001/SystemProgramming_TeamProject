@@ -337,4 +337,7 @@ void deleteEvents() {
     event_count--; // 이벤트 개수 감소
 
     popup_message("Event successfully deleted!");
+
+	// 5. UI 화면 초기화
+    active_screen = NULL;
 }
