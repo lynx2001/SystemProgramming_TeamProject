@@ -19,28 +19,23 @@ void event_submenu() {
         choice = getch();  // 사용자 입력 대기
 
         if (choice == '1') {
-			current_screen = DEFAULT_SCREEN;
             addEvents();  // 일정 추가
 			clear();
 
-			current_screen = EVENT_SCREEN;
 			draw_event_screen();
         } else if (choice == '2') {
-			current_screen = DEFAULT_SCREEN;
             modifyEvents();  // 일정 수정
 			clear();
 
 			current_screen = EVENT_SCREEN;
 			draw_event_screen();
         } else if (choice == '3') {
-			current_screen = DEFAULT_SCREEN;
             deleteEvents();  // 일정 삭제
 			clear();
 
 			current_screen = EVENT_SCREEN;
 			draw_event_screen();
 		} else if (choice == '4') {
-			current_screen = DEFAULT_SCREEN;
 			add_schedule();  // 오토 스케줄링
 			clear();
 
@@ -159,9 +154,6 @@ void addEvents() {
     UIScreen screen = {"Add Event", fields, sizeof(fields) / sizeof(fields[0])};
 
 	// 공통 입력 처리 함수 호출
-	active_screen = &screen;
-    current_step = 0;
-
     if (process_user_input(&screen) == 0) {
         // 데이터 파싱 및 유효성 검사
         sscanf(start_date, "%d %d %d", &event.date_start.year, &event.date_start.month, &event.date_start.day);
@@ -189,7 +181,8 @@ void addEvents() {
         popup_message("Event creation canceled."); // 취소 메시지 출력
     }
 
-	active_screen = NULL; // 현재 UI 화면 초기화
+	// 5. UI 화면 초기화
+    active_screen = NULL;
 }
 
 // 일정 수정 (삭제 후 추가)
@@ -198,6 +191,8 @@ void modifyEvents() {
         popup_message("No events to modify!");
         return;
     }
+
+	current_screen = DEFAULT_SCREEN;
 
     Time current;
     initTime(&current); // 현재 시간 초기화
@@ -228,6 +223,8 @@ void modifyEvents() {
     }
 
     Event *event = &events[choice - 1];
+
+	current_screen = EVENT_SCREEN;
 
     // 3. 입력 필드 정의
     char title[50] = {0}, details[100] = {0}, start_date[20] = {0}, start_time[10] = {0};
@@ -260,9 +257,6 @@ void modifyEvents() {
     UIScreen screen = {"Modify Event", fields, sizeof(fields) / sizeof(fields[0])};
 
     // 4. 입력 처리
-    active_screen = &screen;
-    current_step = 0;
-
     if (process_user_input(&screen) == 0) {
         // 5. 수정 데이터 반영
         strncpy(event->title, title, sizeof(event->title));
@@ -282,6 +276,7 @@ void modifyEvents() {
         popup_message("Modification canceled.");
     }
 
+	// 5. UI 화면 초기화
     active_screen = NULL;
 }
 
@@ -292,6 +287,8 @@ void deleteEvents() {
         popup_message("No events to delete!");
         return;
     }
+
+	current_screen = DEFAULT_SCREEN;
 
     // 1. 현재 이벤트 목록 출력
     clear();

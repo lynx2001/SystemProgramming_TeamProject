@@ -181,6 +181,8 @@ void change_habit() {
         return;
     }
 
+	current_screen = DEFAULT_SCREEN;
+
     // 1. 현재 존재하는 습관 목록을 출력
     clear();
     mvprintw(2, 10, "Change Habit:");
@@ -207,7 +209,9 @@ void change_habit() {
 
     Habit *habit = &habits[choice - 1];
 
-    // 3. 수정 UI 준비
+	current_screen = HABIT_SCREEN;
+    
+	// 3. 수정 UI 준비
     char new_name[50] = {0};
     snprintf(new_name, sizeof(new_name), "%s", habit->name);
 
@@ -348,14 +352,12 @@ void habit_submenu() {
         choice = getch();
 
         if (choice == '1') {
-			current_screen = DEFAULT_SCREEN;
             add_habit();
 			clear();
 			
 			current_screen = HABIT_SCREEN;
 			draw_habit_screen();
         } else if (choice == '2') {
-			current_screen = DEFAULT_SCREEN;
             change_habit();
 			clear();
 			
