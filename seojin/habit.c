@@ -58,7 +58,7 @@ void change_habit() {
         return;
     }
 
-    // 1. 현재 존재하는 습관 목록 출력
+    // 1. 현재 존재하는 습관 목록을 출력
     clear();
     mvprintw(2, 10, "Change Habit:");
     mvprintw(4, 10, "Select a habit to change:");
@@ -67,16 +67,16 @@ void change_habit() {
         mvprintw(6 + i, 10, "%d. %s (Streak: %d)", i + 1, habits[i].name, habits[i].streak);
     }
 
-    mvprintw(7 + habit_count, 10, "Enter the number of the habit (or :b to go back): ");
+    mvprintw(7 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
     refresh();
 
     // 2. 사용자 입력 처리
-    char buffer[128] = {0};
-    if (get_input(buffer, sizeof(buffer)) == -1) {
+    char choice_buffer[128] = {0};
+    if (get_input(choice_buffer, sizeof(choice_buffer)) == -1) {
         return; // 뒤로가기 처리
     }
 
-    int choice = atoi(buffer);
+    int choice = atoi(choice_buffer);
     if (choice < 1 || choice > habit_count) {
         popup_message("Invalid choice. Please try again.");
         return;
@@ -89,7 +89,7 @@ void change_habit() {
     snprintf(new_name, sizeof(new_name), "%s", habit->name);
 
     InputField fields[] = {
-        {"Modify habit name", new_name, sizeof(new_name)}
+        {"Modify habit name", new_name, sizeof(new_name), NULL}
     };
 
     UIScreen modify_screen = {
@@ -112,6 +112,7 @@ void change_habit() {
 
     active_screen = NULL; // 현재 UI 화면 초기화
 }
+
 
 // 습관 삭제 함수
 void delete_habit() {
