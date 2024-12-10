@@ -10,11 +10,12 @@
 // 이벤트 관리 서브 메뉴
 void event_submenu() {
 	current_screen = EVENT_SCREEN;
-    draw_event_screen();
 
 	int choice;
 	
 	while (1) {
+        draw_event_screen();
+
         choice = getch();  // 사용자 입력 대기
 
         if (choice == '1') {
