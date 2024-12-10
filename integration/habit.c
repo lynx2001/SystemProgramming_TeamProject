@@ -190,7 +190,7 @@ void change_habit() {
 
     char choice_buffer[10] = {0};
     InputField selection_fields[] = {
-        {"Select a habit to change", choice_buffer, sizeof(choice_buffer), validate_habit_choice}
+        {"Select a habit to change", choice_buffer, sizeof(choice_buffer), NULL}
     };
 
     UIScreen selection_screen = {
@@ -221,7 +221,7 @@ void change_habit() {
     // 4. 선택된 습관 처리
     int choice = atoi(choice_buffer);
     if (choice < 1 || choice > habit_count) {
-        popup_message("Invalid choice.");
+        popup_message("Invalid choice. Please try again.");
         active_screen = NULL;
         return;
     }
@@ -272,7 +272,7 @@ void delete_habit() {
 
     char choice_buffer[10] = {0};
     InputField fields[] = {
-        {"Select a habit to delete", choice_buffer, sizeof(choice_buffer), validate_habit_choice}
+        {"Select a habit to delete", choice_buffer, sizeof(choice_buffer), NULL}
     };
 
     UIScreen screen = {
@@ -300,10 +300,10 @@ void delete_habit() {
         return;
     }
 
-    // 4. 유효한 입력 처리
+    // 4. 입력값 직접 유효성 검사
     int choice = atoi(choice_buffer);
     if (choice < 1 || choice > habit_count) {
-        popup_message("Invalid choice!");
+        popup_message("Invalid choice! Please try again.");
         active_screen = NULL;
         return;
     }
@@ -348,7 +348,7 @@ void mark_habit_success() {
 
     char choice_buffer[10] = {0};
     InputField fields[] = {
-        {"Select a habit to mark success", choice_buffer, sizeof(choice_buffer), validate_habit_choice}
+        {"Enter the habit number to mark success", choice_buffer, sizeof(choice_buffer), NULL}
     };
 
     UIScreen screen = {
@@ -376,10 +376,10 @@ void mark_habit_success() {
         return;
     }
 
-    // 4. 유효한 입력 처리
+    // 4. 입력값을 직접 검사
     int choice = atoi(choice_buffer);
     if (choice < 1 || choice > habit_count) {
-        popup_message("Invalid choice!");
+        popup_message("Invalid choice. Please try again.");
         active_screen = NULL;
         return;
     }
@@ -396,6 +396,7 @@ void mark_habit_success() {
 
     active_screen = NULL; // UI 초기화
 }
+
 
 
 // 습관 관리 서브 메뉴
