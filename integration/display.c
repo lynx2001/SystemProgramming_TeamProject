@@ -122,6 +122,7 @@ void draw_lists() {
 
 // 일정 관리 서브메뉴 화면
 void draw_event_screen() {
+    endwin();
     clear();
     int height, width;
     getmaxyx(stdscr, height, width);
@@ -137,6 +138,7 @@ void draw_event_screen() {
 
 // 습관 관리 서브메뉴 화면
 void draw_habit_screen() {
+    endwin();
     clear();
     int height, width;
     getmaxyx(stdscr, height, width);
