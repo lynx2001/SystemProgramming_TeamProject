@@ -13,6 +13,15 @@
 // popup_message 호출 여부를 기록하는 전역 변수
 bool popup_message_called = false;
 
+// 사용자 입력 줄의 Y 오프셋 (서브-서브 초기화 시 재설정 가능)
+static int input_y_offset = 0;
+
+// 초기화: 활성화된 화면 없음
+UIScreen *active_screen = NULL;
+
+// 초기화: 첫 번째 단계
+int current_step = 0;
+
 // 팝업 메시지 출력 함수
 void popup_message(const char *message) {
     int height, width;
