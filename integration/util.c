@@ -80,7 +80,8 @@ int popup_confirmation(const char *message) {
     delwin(backup);             // 백업 윈도우 삭제
     refresh();                  // 화면 갱신
 
-    return choice;
+    // 반환값을 1 (y) 또는 0 (n)으로 매핑
+    return (choice == 'y') ? 1 : 0;
 }
 
 bool validateDate(int year, int month, int day) {
