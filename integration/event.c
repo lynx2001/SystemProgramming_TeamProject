@@ -41,7 +41,7 @@ void event_submenu() {
 		} else if (choice == '4') {
 			current_screen = DEFAULT_SCREEN;
             printf("Auto Scheduling here\n");
-			//add_schedule();  // 오토 스케줄링
+			add_schedule();  // 오토 스케줄링
 			clear();
 
 			current_screen = EVENT_SCREEN;
