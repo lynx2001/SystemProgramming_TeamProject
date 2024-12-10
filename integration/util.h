@@ -15,7 +15,7 @@ bool validateTime(int hour, int minute);
 bool validate_date_wrapper(const char *input);
 bool validate_time_wrapper(const char *input);
 bool validate_reminder(const char *input);
-bool validate_weight(const char *input);
+bool validate_importance(const char *input);
 bool validate_quantity(const char *input);
 //validTest
 
