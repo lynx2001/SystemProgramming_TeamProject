@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <ncurses.h>
 #include <string.h>
+#include "display.h"
 
 extern bool popup_message_called;
 
