@@ -340,11 +340,11 @@ void mark_habit_success() {
 // 습관 관리 서브 메뉴
 void habit_submenu() {
 	current_screen = HABIT_SCREEN;
-    draw_habit_screen();
 
 	int choice;
     
 	while (1) {
+        draw_habit_screen();
         choice = getch();
 
         if (choice == '1') {
