@@ -1,19 +1,12 @@
-// event.h
 #ifndef EVENT_H
 #define EVENT_H
 
-#include "global.h"
-
-void loadEvent();
-void saveEvent();
-Event getEventInput(int is_scheduled);
-void addScheduledEvent();
-void addEvent();
-void deleteEvent();
-void editEvent();
-int calculateInterval(Time, Time);
-double calculateDday(Time);
-void showEvent();
-void showScheduledEvent();
+void event_submenu();   // event 관리 서브 화면
+void loadEvents();
+void saveEvents();
+void addEvents();
+void modifyEvents();
+void deleteEvents();
 
 #endif
+

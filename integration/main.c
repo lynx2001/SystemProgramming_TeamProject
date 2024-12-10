@@ -6,11 +6,10 @@
 #include "event.h"
 #include "habit.h"
 #include "scheduler.h"
-//gaeun
 #include "date_check.h"
 #include "./calendar/calendar.h"
 
-//gaeun
+
 void handleDateChangeSignal(int signal, siginfo_t *info, void *context) {
     if (signal == SIGUSR1) {
         
@@ -27,6 +26,7 @@ int main() {
     loadEvents();
     loadHabits();
     
+    updateDdayAndWeights(events, event_count);
     struct sigaction new_handler;
 
     new_handler.sa_sigaction = handleDateChangeSignal;//시그널발생시 처리 함수

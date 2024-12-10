@@ -64,6 +64,10 @@ void calDday(Event* event_t, Time current) {
     int endMonth = event_t->date_end.month;
     int endDay = event_t->date_end.day;
 
+    if (year > endYear || (year == endYear && month > endMonth) || (year == endYear && month == endMonth && day > endDay)) {
+        event_t->Dday = -1;
+        return;
+    }
     while (year < endYear || (year == endYear && month < endMonth) || (year == endYear && month == endMonth && day < endDay)) {
         event_t->Dday++;
         day++;
