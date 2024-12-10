@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <stdlib.h>
 #include "event.h"
 #include "global.h"
 #include "util.h"
