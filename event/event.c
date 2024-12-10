@@ -136,22 +136,23 @@ void addEvents() {
     // curreny_y 초기화 (util.c에 정의된 함수)
     get_input("RESET", NULL, 0);
 
-    // 초기화 된 이벤트 생성
-    Event event = {0};
-    char buffer[128];
-    int current_step = 0;
-
     clear();
     echo();
+
+    /* 아래는 event 추가 관련 */
+    // 초기화 된 이벤트 생성
+    Event temp_event = {0};
+    char buffer[128];
+    int current_step = 0;
 
     mvprintw(2, 10, "Add Event:");
     while (current_step < 7) {
         switch (current_step) {
             memset(buffer, 0, sizeof(buffer)); // buffer 초기화
             case 0:  // 제목 입력
-                if (get_input("Enter event title: ", event.title, sizeof(event.title)) == -1) return;
+                if (get_input("Enter event title: ", temp_event.title, sizeof(temp_event.title)) == -1) return;
                 // 제목이 빈 경우나 공백으로만 이루어진 경우 처리
-                if (strlen(event.title) == 0 || strspn(event.title, " \t\r\n") == strlen(event.title)) {
+                if (strlen(temp_event.title) == 0 || strspn(temp_event.title, " \t\r\n") == strlen(temp_event.title)) {
                     popup_message("Cannot be empty or whitespace only. Please try again.");
                 } else {
                     current_step++;
@@ -160,7 +161,7 @@ void addEvents() {
 
             case 1:  // 시작 날짜 입력
                 if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-                if (sscanf(buffer, "%d %d %d", &event.date_start.year, &event.date_start.month, &event.date_start.day) == 3 && validateDate(event.date_start.year, event.date_start.month, event.date_start.day)) {
+                if (sscanf(buffer, "%d %d %d", &temp_event.date_start.year, &temp_event.date_start.month, &temp_event.date_start.day) == 3 && validateDate(temp_event.date_start.year, temp_event.date_start.month, temp_event.date_start.day)) {
                     current_step++;
                 } else {
                     popup_message("Invalid start date. Please try again.");
@@ -170,10 +171,10 @@ void addEvents() {
             case 2:  // 시작 시간 입력
                 if (get_input("Enter start time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
                 if (buffer[0] == '\0') {
-                    event.date_start.hour = 24;
-                    event.date_start.minute = 0;
+                    temp_event.date_start.hour = 24;
+                    temp_event.date_start.minute = 0;
                     current_step++;
-                } else if (sscanf(buffer, "%d %d", &event.date_start.hour, &event.date_start.minute) == 2 && validateTime(event.date_start.hour, event.date_start.minute)) {
+                } else if (sscanf(buffer, "%d %d", &temp_event.date_start.hour, &temp_event.date_start.minute) == 2 && validateTime(temp_event.date_start.hour, temp_event.date_start.minute)) {
                     current_step++;
                 } else {
                     popup_message("Invalid start time. Please try again.");
@@ -182,7 +183,7 @@ void addEvents() {
 
             case 3:  // 종료 날짜 입력
                 if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-                if (sscanf(buffer, "%d %d %d", &event.date_end.year, &event.date_end.month, &event.date_end.day) == 3 && validateDate(event.date_end.year, event.date_end.month, event.date_end.day)) {
+                if (sscanf(buffer, "%d %d %d", &temp_event.date_end.year, &temp_event.date_end.month, &temp_event.date_end.day) == 3 && validateDate(temp_event.date_end.year, temp_event.date_end.month, temp_event.date_end.day)) {
                     current_step++;
                 } else {
                     popup_message("Invalid end date. Please try again.");
@@ -192,10 +193,10 @@ void addEvents() {
             case 4:  // 종료 시간 입력
                 if (get_input("Enter end time (HH MM): ", buffer, sizeof(buffer)) == -1) return;
                 if (buffer[0] == '\0') {
-                    event.date_start.hour = 24;
-                    event.date_start.minute = 0;
+                    temp_event.date_start.hour = 24;
+                    temp_event.date_start.minute = 0;
                     current_step++;
-                } else if (sscanf(buffer, "%d %d", &event.date_end.hour, &event.date_end.minute) == 2 && validateTime(event.date_end.hour, event.date_end.minute)) {
+                } else if (sscanf(buffer, "%d %d", &temp_event.date_end.hour, &temp_event.date_end.minute) == 2 && validateTime(temp_event.date_end.hour, temp_event.date_end.minute)) {
                     current_step++;
                 } else {
                     popup_message("Invalid end time. Please try again.");
@@ -204,18 +205,19 @@ void addEvents() {
 
             case 5:  // 리마인더 입력
                 if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
-                if (sscanf(buffer, "%d", &event.reminder) == 1 && (event.reminder == 0 || event.reminder == 1)) {
+                if (sscanf(buffer, "%d", &temp_event.reminder) == 1 && (temp_event.reminder == 0 || temp_event.reminder == 1)) {
                     current_step++;
                 } else {
                     popup_message("Invalid reminder. Please try again.");
                 }
                 break;
             case 6:  // 세부 사항 입력
-                if (get_input("Enter event details: ", event.details, sizeof(event.details)) == -1) return;
+                if (get_input("Enter event details: ", temp_event.details, sizeof(temp_event.details)) == -1) return;
                 current_step++;
                 break;
 
 			default:
+                popup_message("Invalid step. Please try again.");
 				return;
 		}
 	}
@@ -224,27 +226,27 @@ void addEvents() {
     // Dday 계산
     Time current;
     initTime(&current);
-    calDday(&event, current);   // schedule.c 에서 정의된 함수
+    calDday(&temp_event, current);   // schedule.c 에서 정의된 함수
 
     // Event 저장
     Event new_event;
     new_event.id = ++last_event_id;
-    strncpy(new_event.title, event.title, sizeof(new_event.title));
-    new_event.date_start = event.date_start;
-    new_event.date_end = event.date_end;
+    strncpy(new_event.title, temp_event.title, sizeof(new_event.title));
+    new_event.date_start = temp_event.date_start;
+    new_event.date_end = temp_event.date_end;
     new_event.importance = -1;
     new_event.quantity = -1;
     new_event.interval = -1;
-    new_event.Dday = event.Dday;
+    new_event.Dday = temp_event.Dday;
     new_event.weight = -1;
-    new_event.reminder = event.reminder;
-    strncpy(new_event.details, event.details, sizeof(new_event.details));
+    new_event.reminder = temp_event.reminder;
+    strncpy(new_event.details, temp_event.details, sizeof(new_event.details));
     events[event_count++] = new_event;
 
     popup_message("Event successfully added!");  // 성공 메시지 출력
 }
 
-// 일정 수정 (삭제 후 추가)
+// 일정 수정
 void modifyEvents() {
     if (event_count == 0) {
         popup_message("No events to modify!");
@@ -270,76 +272,142 @@ void modifyEvents() {
     mvprintw(6 + event_count, 12, "Enter event number: ");
     scanw("%d", &choice);  // 수정할 이벤트 번호 선택
 
-    if (choice >= 1 && choice <= event_count) {
-        Event *event = &events[choice - 1];
-
-        // 선택된 이벤트 수정
-        // 제목 수정
-        mvprintw(7 + event_count, 12, "Modify title (current: %s): ", event->title);
-        getstr(event->title);
-
-        // 시작 날짜 수정
-        while (1) {
-            mvprintw(8 + event_count, 12, "Modify start date (YYYY MM DD) (current: %04d-%02d-%02d): ",
-                     event->date_start.year, event->date_start.month, event->date_start.day);
-            scanw("%d %d %d", &event->date_start.year, &event->date_start.month, &event->date_start.day);
-            if (validateDate(event->date_start.year, event->date_start.month, event->date_start.day)) {
-                break;
-            }
-            popup_message("Invalid date. Please try again.");
-        }
-
-        // 시작 시간 수정
-        while (1) {
-            mvprintw(9 + event_count, 12, "Modify start time (HH MM) (current: %02d:%02d): ",
-                     event->date_start.hour, event->date_start.minute);
-            scanw("%d %d", &event->date_start.hour, &event->date_start.minute);
-            if (validateTime(event->date_start.hour, event->date_start.minute)) {
-                break;
-            }
-            popup_message("Invalid time. Please try again.");
-        }
-
-        // 종료 날짜 수정
-        while (1) {
-            mvprintw(10 + event_count, 12, "Modify end date (YYYY MM DD) (current: %04d-%02d-%02d): ",
-                     event->date_end.year, event->date_end.month, event->date_end.day);
-            scanw("%d %d %d", &event->date_end.year, &event->date_end.month, &event->date_end.day);
-            if (validateDate(event->date_end.year, event->date_end.month, event->date_end.day)) {
-                break;
-            }
-            popup_message("Invalid date. Please try again.");
-        }
-
-        // 종료 시간 수정
-        while (1) {
-            mvprintw(11 + event_count, 12, "Modify end time (HH MM) (current: %02d:%02d): ",
-                     event->date_end.hour, event->date_end.minute);
-            scanw("%d %d", &event->date_end.hour, &event->date_end.minute);
-            if (validateTime(event->date_end.hour, event->date_end.minute)) {
-                break;
-            }
-            popup_message("Invalid time. Please try again.");
-        }
-
-        // 중요도 수정
-        mvprintw(12 + event_count, 12, "Modify importance (current: %d, range: 0-5): ", event->importance);
-        scanw("%d", &event->importance);
-
-        // 세부 사항 수정
-        mvprintw(13 + event_count, 12, "Modify details (current: %s): ", event->details);
-        getstr(event->details);
-
-        // 리마인더 수정
-        mvprintw(14 + event_count, 12, "Modify reminder (current: %d): ", event->reminder);
-        scanw("%d", &event->reminder);
-
-        popup_message("Event successfully modified!"); // 성공 메시지 출력
-    } else {
-        popup_message("Invalid choice!"); // 유효하지 않은 선택
+    if (choice < 1 || choice > event_count) {
+        popup_message("Invalid event number!");
+        return;
     }
 
+    /* 아래는 event 수정 관련 */
+    Event *original_event = &events[choice - 1];
+    // 초기화 된 이벤트 생성
+    Event temp_event = {0};
+    char buffer[128];
+    int current_step = 0;
+
+    // 이벤트 수정 view 다시 로딩
+    get_input("RESET", NULL, 0);    // current_y 초기화
+    clear();
+
+    mvprintw(2, 10, "Modify Event:");
+    mvprintw(4, 12, "Editing event: %s", original_event->title);
+    while (current_step < 7) {
+        memset(buffer, 0, sizeof(buffer)); // buffer 초기화
+        switch (current_step) {
+            case 0:  // 제목 수정
+                if (get_input("Enter new event title (leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0 && strspn(buffer, " \t\r\n") != strlen(buffer)) {
+                    strncpy(temp_event.title, buffer, sizeof(temp_event.title));
+                }
+                current_step++;
+                break;
+
+            case 1:  // 시작 날짜 수정
+                if (get_input("Enter new start date (YYYY MM DD, leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0 && sscanf(buffer, "%d %d %d", &temp_event.date_start.year, &temp_event.date_start.month, &temp_event.date_start.day) == 3 && validateDate(temp_event.date_start.year, temp_event.date_start.month, temp_event.date_start.day)) {
+                    // 날짜가 유효한 경우에만 업데이트
+                } else if (strlen(buffer) > 0) {
+                    popup_message("Invalid start date. Please try again.");
+                    continue;
+                }
+                current_step++;
+                break;
+
+            case 2:  // 시작 시간 수정
+                if (get_input("Enter new start time (HH MM, leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0) {
+                    if (sscanf(buffer, "%d %d", &temp_event.date_start.hour, &temp_event.date_start.minute) == 2 && validateTime(temp_event.date_start.hour, temp_event.date_start.minute)) {
+                        // 시간 유효성 검사 통과
+                    } else {
+                        popup_message("Invalid start time. Please try again.");
+                        continue;
+                    }
+                }
+                current_step++;
+                break;
+
+            case 3:  // 종료 날짜 수정
+                if (get_input("Enter new end date (YYYY MM DD, leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0 && sscanf(buffer, "%d %d %d", &temp_event.date_end.year, &temp_event.date_end.month, &temp_event.date_end.day) == 3 && validateDate(temp_event.date_end.year, temp_event.date_end.month, temp_event.date_end.day)) {
+                    // 날짜가 유효한 경우에만 업데이트
+                } else if (strlen(buffer) > 0) {
+                    popup_message("Invalid end date. Please try again.");
+                    continue;
+                }
+                current_step++;
+                break;
+
+            case 4:  // 종료 시간 수정
+                if (get_input("Enter new end time (HH MM, leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0) {
+                    if (sscanf(buffer, "%d %d", &temp_event.date_end.hour, &temp_event.date_end.minute) == 2 && validateTime(temp_event.date_end.hour, temp_event.date_end.minute)) {
+                        // 시간 유효성 검사 통과
+                    } else {
+                        popup_message("Invalid end time. Please try again.");
+                        continue;
+                    }
+                }
+                current_step++;
+                break;
+
+            case 5:  // 리마인더 수정
+                if (get_input("Set new reminder (1: Yes, 0: No, leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0) {
+                    if (sscanf(buffer, "%d", &temp_event.reminder) == 1 && (temp_event.reminder == 0 || temp_event.reminder == 1)) {
+                        // 리마인더 유효성 검사 통과
+                    } else {
+                        popup_message("Invalid reminder. Please try again.");
+                        continue;
+                    }
+                }
+                current_step++;
+                break;
+
+            case 6:  // 세부 사항 수정
+                if (get_input("Enter new event details (leave blank to keep current): ", buffer, sizeof(buffer)) == -1) return;
+                if (strlen(buffer) > 0) {
+                    strncpy(temp_event.details, buffer, sizeof(temp_event.details));
+                }
+                current_step++;
+                break;
+
+            default:
+                popup_message("Invalid step. Please try again.");
+                return;
+        }
+    }
     noecho();
+
+    // Dday 계산
+    Time current;
+    initTime(&current);
+    calDday(&temp_event, current);   // schedule.c 에서 정의된 함수
+
+    // 수정된 필드만 원래 이벤트에 복사
+    if (strlen(temp_event.title) > 0) { // title
+        strncpy(original_event->title, temp_event.title, sizeof(original_event->title));
+    }
+    if (temp_event.date_start.year != 0 || temp_event.date_start.month != 0 || temp_event.date_start.day != 0) {  // date_start
+        original_event->date_start = temp_event.date_start;
+    }
+    if (temp_event.date_start.hour != 0 || temp_event.date_start.minute != 0) {  // start time
+        original_event->date_start.hour = temp_event.date_start.hour;
+        original_event->date_start.minute = temp_event.date_start.minute;
+    }
+    if (temp_event.date_end.year != 0 || temp_event.date_end.month != 0 || temp_event.date_end.day != 0) {  // date_end
+        original_event->date_end = temp_event.date_end;
+    }
+    if (temp_event.date_end.hour != 0 || temp_event.date_end.minute != 0) {  // end time
+        original_event->date_end.hour = temp_event.date_end.hour;
+        original_event->date_end.minute = temp_event.date_end.minute;
+    }
+    if (temp_event.reminder != 0) {  // reminder
+        original_event->reminder = temp_event.reminder;
+    }
+    if (strlen(temp_event.details) > 0) {  // details
+        strncpy(original_event->details, temp_event.details, sizeof(original_event->details));
+    }
+
+    popup_message("Event successfully modified!");  // 성공 메시지 출력
 }
 
 // 일정 삭제
@@ -368,6 +436,7 @@ void deleteEvents() {
             events[i] = events[i + 1];  // 배열 재정렬
         }
         event_count--;  // 이벤트 개수 감소
+        memset(&events[event_count], 0, sizeof(Event));  // 마지막 이벤트 초기화
         popup_message("Event successfully deleted!");  // 성공 메시지 출력
     } else {
         popup_message("Invalid choice!");  // 유효하지 않은 선택
