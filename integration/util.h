@@ -7,8 +7,6 @@
 #include <string.h>
 #include "display.h"
 
-extern bool popup_message_called;
-
 //유효성 테스트용 임시
 bool validateDate(int year, int month, int day);
 bool validateTime(int hour, int minute);
@@ -32,5 +30,9 @@ void sortTodo(Event* event_t, int count);
 
 int isLeapYear(int year);
 int daysInMonth(int month, int year);
+
+extern bool popup_message_called;
+extern UIScreen *active_screen;
+extern int current_step;
 
 #endif
