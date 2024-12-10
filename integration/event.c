@@ -40,7 +40,6 @@ void event_submenu() {
 			draw_event_screen();
 		} else if (choice == '4') {
 			current_screen = DEFAULT_SCREEN;
-            printf("Auto Scheduling here\n");
 			add_schedule();  // 오토 스케줄링
 			clear();
 
@@ -99,14 +98,13 @@ void loadEvents() {
     }
 
     fclose(file);
-    printf("Debug: %d개의 이벤트가 로드되었습니다.\n", event_count);
 }
 
 // 일정 txt에 저장하기
 void saveEvents() {
     FILE *file = fopen(EVENT_FILE, "w");
     if (file == NULL) {
-        printf("파일 열기 오류\n");
+        perror("파일 생성 실패");
         return;
     }
 
