@@ -133,9 +133,9 @@ bool validate_reminder(const char *input) {
     return strcmp(input, "0") == 0 || strcmp(input, "1") == 0;
 }
 
-bool validate_weight(const char *input) {
-    double value = atof(input);
-    return value >= 1.0 && value <= 5.0;
+bool validate_importance(const char *input) {
+    int value = atoi(input);  // 문자열을 정수로 변환
+    return value >= 0 && value <= 5;  // 0~5 사이 값만 유효
 }
 
 bool validate_quantity(const char *input) {
