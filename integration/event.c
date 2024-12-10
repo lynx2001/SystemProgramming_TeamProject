@@ -158,8 +158,8 @@ void addEvents() {
     // UI 화면 정의
     UIScreen screen = {"Add Event", fields, sizeof(fields) / sizeof(fields[0])};
 
-    // 공통 입력 처리 함수 호출
-    active_screen = &screen;
+	// 공통 입력 처리 함수 호출
+	active_screen = &screen;
     current_step = 0;
 
     if (process_user_input(&screen) == 0) {
@@ -189,7 +189,7 @@ void addEvents() {
         popup_message("Event creation canceled."); // 취소 메시지 출력
     }
 
-    active_screen = NULL;
+	active_screen = NULL; // 현재 UI 화면 초기화
 }
 
 // 일정 수정 (삭제 후 추가)
