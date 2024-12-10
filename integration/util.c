@@ -210,9 +210,12 @@ void handle_resize(int sig) {
 }
 
 int get_input(char *buffer, int size) {
+	int y, x;
+	getyx(stdscr, y, x);
+
 	// 사용자 입력
     echo();
-    mvgetnstr(getcury(stdscr), getcurx(stdscr), buffer, size);  // 현재 커서 위치에서 입력
+    mvgetnstr(y, x, buffer, size);  // 현재 커서 위치에서 입력
 	noecho();
 
     // 뒤로가기 (:b) 입력 감지
@@ -234,8 +237,8 @@ int process_user_input(UIScreen *screen) {
         char buffer[128];
 
 		// 커서를 현재 프롬프트 아래로 이동
-        int y = 5 + current_step * 3;  // 프롬프트 아래 줄 계산
-        int x = 14 + strlen(screen->fields[current_step].buffer);	// ">" 이후의 입력 시작 위치
+		int y = 5 + current_step * 3 + (strlen(screen->fields[current_step].buffer) > 0 ? 1 : 0);  // 기존 값이 있으면 다음 줄
+        int x = 14 + (strlen(screen->fields[current_step].buffer) > 0 ? 0 : 2);  // ">" 이후 위치
         move(y, x);                    // 커서 이동
 		refresh();
 
