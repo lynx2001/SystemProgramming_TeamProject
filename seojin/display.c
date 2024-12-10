@@ -123,37 +123,28 @@ void draw_habit_screen() {
 	refresh();
 }
 
-void draw_add_event_ui(EventInputState *state) {
+void draw_ui_screen(const UIScreen *screen, int current_step) {
     clear();
-    mvprintw(2, 10, "Add Event:");
 
-    // 제목 출력
-    mvprintw(4, 12, "Enter event title: %s", state->title[0] ? state->title : "(not set)");
+    mvprintw(2, 10, "%s", screen->title);  // 화면 제목 출력
 
-    // 시작 날짜 출력
-    mvprintw(6, 12, "Enter start date (YYYY MM DD): %04d-%02d-%02d", state->date_start.year ? state->date_start.year : 0,
-             state->date_start.month ? state->date_start.month : 0,
-             state->date_start.day ? state->date_start.day : 0);
+    for (int i = 0; i < screen->field_count; i++) {
+        mvprintw(4 + i * 3, 10, "%s:", screen->fields[i].prompt);
 
-    // 시작 시간 출력
-    mvprintw(8, 12, "Enter start time (HH MM): %02d:%02d", state->date_start.hour ? state->date_start.hour : 0,
-             state->date_start.minute ? state->date_start.minute : 0);
-
-    // 종료 날짜 출력
-    mvprintw(10, 12, "Enter end date (YYYY MM DD): %04d-%02d-%02d", state->date_end.year ? state->date_end.year : 0,
-             state->date_end.month ? state->date_end.month : 0,
-             state->date_end.day ? state->date_end.day : 0);
-
-    // 종료 시간 출력
-    mvprintw(12, 12, "Enter end time (HH MM): %02d:%02d", state->date_end.hour ? state->date_end.hour : 0,
-             state->date_end.minute ? state->date_end.minute : 0);
-
-    // 리마인더 출력
-    mvprintw(14, 12, "Set reminder (1: Yes, 0: No): %d", state->reminder);
-    
-	// 세부 사항 출력
-    mvprintw(16, 12, "Enter event details: %s", state->details[0] ? state->details : "(not set)");
-
-    refresh();
+		if (current_step == i) {
+            // 현재 입력 중인 필드
+            mvprintw(5 + i * 3, 12, "> %s", screen->fields[i].buffer);
+        } else {
+            // 다른 필드는 그대로 출력
+            mvprintw(5 + i * 3, 12, "  %s", screen->fields[i].buffer);
+        }
+	}
+	
+	int height, width;
+    getmaxyx(stdscr, height, width);
+	(void) width;
+    mvprintw(height - 1, 0, ":b return to previous page");
+	
+	refresh();
 }
 

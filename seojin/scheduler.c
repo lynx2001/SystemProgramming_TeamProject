@@ -1,90 +1,63 @@
 #include <ncurses.h>
 #include <string.h>
+#include <stdlib.h>
 #include "global.h"
 #include "util.h"
 #include "scheduler.h"
 
 void add_schedule() {
-    char title[50], details[100], buffer[20];
-    int year_start, month_start, day_start, year_end, month_end, day_end;
-    double weight;
-    double quantity;
-    int reminder;
+    char title[50] = {0}, details[100] = {0};
+    char start_date[20] = {0}, end_date[20] = {0};
+    char weight[10] = {0}, quantity[10] = {0}, reminder[5] = {0};
 
-    clear();
-    echo();
+    // 입력 필드 정의
+    InputField fields[] = {
+        {"Enter title", title, sizeof(title), NULL},  // 제목은 유효성 검사 없음
+        {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper},
+        {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper},
+        {"Enter weight (1-5)", weight, sizeof(weight), validate_weight},
+        {"Enter quantity", quantity, sizeof(quantity), validate_quantity},
+        {"Enter reminder (1: Yes, 0: No)", reminder, sizeof(reminder), validate_reminder},
+        {"Enter details", details, sizeof(details), NULL}  // 세부 사항은 유효성 검사 없음
+    };
 
-    mvprintw(2, 10, "Add Schedule:");
+    // UI 화면 정의
+    UIScreen screen = {"Add Schedule", fields, sizeof(fields) / sizeof(fields[0])};
 
-	// 제목 입력
-    if (get_input("Enter event title: ", title, sizeof(title)) == -1) return;
+    // 공통 입력 처리 함수 호출
+    active_screen = &screen;
+    current_step = 0;
 
-    // 시작 날짜 입력
-    while (1) {
-        if (get_input("Enter start date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d %d", &year_start, &month_start, &day_start) == 3 && validateDate(year_start, month_start, day_start)) {
-            break;
-        }
-        popup_message("Invalid date. Please try again.");
+    if (process_user_input(&screen) == 0) {
+        // 데이터 저장
+        Event new_event;
+
+        // 제목 복사
+        strncpy(new_event.title, title, sizeof(new_event.title));
+
+        // 날짜 변환 및 유효성 검사
+        sscanf(start_date, "%d %d %d", &new_event.date_start.year, &new_event.date_start.month, &new_event.date_start.day);
+        sscanf(end_date, "%d %d %d", &new_event.date_end.year, &new_event.date_end.month, &new_event.date_end.day);
+
+        // 가중치와 분량 변환
+        new_event.weight = atof(weight);
+        new_event.quantity = atof(quantity);
+
+        // 리마인더 값 변환
+        new_event.Dday = (atoi(reminder) == 1) ? 1 : 0;
+
+        // 세부사항 복사
+        strncpy(new_event.details, details, sizeof(new_event.details));
+
+        // ID 및 이벤트 저장
+        new_event.id = ++last_id;
+        events[event_count++] = new_event;
+
+        popup_message("Schedule successfully added!");
+    } else {
+        popup_message("Schedule creation canceled.");
     }
 
-	// 마감 날짜 입력
-    while (1) {
-        if (get_input("Enter end date (YYYY MM DD): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d %d %d", &year_end, &month_end, &day_end) == 3 && validateDate(year_end, month_end, day_end)) {
-            break;
-        }
-        popup_message("Invalid date. Please try again.");
-    }
-
-	// 가중치 입력
-    while (1) {
-        if (get_input("Enter weight (1~5): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%lf", &weight) == 1 && (weight == 1 || weight == 2 || weight == 3 || weight == 4 || weight == 5)) {
-            break;
-        }
-        popup_message("Invalid input. Please enter 1 - 5.");
-    }
-
-	// 분량 입력
-    while (1) {
-        if (get_input("Enter quantity (integer): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%lf", &quantity) == 1) {	// 정수 여부 검증 필요
-            break;
-        }
-        popup_message("Invalid input. Please enter integer.");
-    }
-	
-	// 세부사항 입력
-    if (get_input("Enter details: ", details, sizeof(details)) == -1) return;
-
-    // 리마인더 입력
-    while (1) {
-        if (get_input("Set reminder (1: Yes, 0: No): ", buffer, sizeof(buffer)) == -1) return;
-        if (sscanf(buffer, "%d", &reminder) == 1 && (reminder == 0 || reminder == 1)) {
-            break;
-        }
-        popup_message("Invalid input. Please enter 1 or 0.");
-    }
-
-    noecho();
-
-    // 새로운 스케줄 생성 및 데이터 저장
-    Event new_event;
-    new_event.id = ++last_id;
-    strncpy(new_event.title, title, sizeof(new_event.title));
-    new_event.date_start.year = year_start;
-    new_event.date_start.month = month_start;
-    new_event.date_start.day = day_start;
-    new_event.date_end.year = year_end;
-    new_event.date_end.month = month_end;
-	new_event.date_end.day = day_end;
-    new_event.weight = weight;
-    new_event.quantity = quantity;
-    strncpy(new_event.details, details, sizeof(new_event.details));
-
-    // 배열에 새 스케줄 추가
-    events[event_count++] = new_event;
-
-    popup_message("Schedule successfully added!");
+    active_screen = NULL; // 현재 UI 화면 초기화
 }
+

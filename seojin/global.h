@@ -30,6 +30,7 @@ typedef struct {
     double quantity;    // 입력된 값
     double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산) >> default : -1
     char details[100];
+	int reminder;
 
     /*
     가중치 일정 입력 시 고려할 사항,
