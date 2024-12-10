@@ -243,74 +243,68 @@ void delete_habit() {
         return;
     }
 
-    // 1. 현재 습관 리스트를 필드로 생성
-    char habit_choices[MAX_HABITS][100] = {0};
+    // 1. 현재 존재하는 습관 목록 출력
+    clear();
+    mvprintw(2, 10, "Delete Habit:");
+    mvprintw(4, 10, "Select a habit to delete:");
+
     for (int i = 0; i < habit_count; i++) {
-        snprintf(habit_choices[i], sizeof(habit_choices[i]), "%d. %s (Streak: %d)", 
-                 i + 1, habits[i].name, habits[i].streak);
+        mvprintw(6 + i, 10, "%d. %s (Streak: %d)", i + 1, habits[i].name, habits[i].streak);
     }
 
-    char choice_buffer[10] = {0};
+    mvprintw(7 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
+    refresh();
+
+    // 2. 사용자 입력 처리
+    char choice_buffer[128] = {0};
+    if (get_input(choice_buffer, sizeof(choice_buffer)) == -1) {
+        return; // 뒤로가기 처리
+    }
+
+    int choice = atoi(choice_buffer);
+    if (choice < 1 || choice > habit_count) {
+        popup_message("Invalid choice. Please try again.");
+        return;
+    }
+
+    Habit *habit = &habits[choice - 1];
+
+    // 3. 삭제 확인 UI 준비
+    char confirmation[128];
+    snprintf(confirmation, sizeof(confirmation), "Delete \"%s\"? (y/n):", habit->name);
+
     InputField fields[] = {
-        {"Select a habit to delete", choice_buffer, sizeof(choice_buffer), NULL}
+        {"Confirm deletion (y/n)", confirmation, sizeof(confirmation), NULL}
     };
 
-    UIScreen screen = {
-        "Delete Habit",
+    UIScreen confirm_screen = {
+        "Delete Habit Confirmation",
         fields,
         sizeof(fields) / sizeof(fields[0])
     };
 
-    // 2. 현재 습관 리스트를 화면에 출력
-    clear();
-    mvprintw(2, 10, "Delete Habit:");
-    for (int i = 0; i < habit_count; i++) {
-        mvprintw(4 + i, 10, "%s", habit_choices[i]);
-    }
-    mvprintw(5 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
-    refresh();
-
-    // 3. 사용자 입력 처리
-    active_screen = &screen;
+    active_screen = &confirm_screen;
     current_step = 0;
 
-    if (process_user_input(&screen) != 0) {
+    // 4. 공통 입력 처리 및 삭제 결정
+    if (process_user_input(&confirm_screen) == 0) {
+        if (strcasecmp(fields[0].buffer, "y") == 0) {
+            // 5. 습관 삭제 처리
+            for (int i = choice - 1; i < habit_count - 1; i++) {
+                habits[i] = habits[i + 1];
+            }
+            habit_count--;
+            popup_message("Habit successfully deleted!");
+        } else {
+            popup_message("Deletion canceled.");
+        }
+    } else {
         popup_message("Deletion canceled.");
-        active_screen = NULL;
-        return;
     }
-
-    // 4. 입력값 직접 유효성 검사
-    int choice = atoi(choice_buffer);
-    if (choice < 1 || choice > habit_count) {
-        popup_message("Invalid choice! Please try again.");
-        active_screen = NULL;
-        return;
-    }
-
-    // 5. 삭제 확인
-    Habit *habit = &habits[choice - 1];
-    char confirmation[128] = "Delete \"";
-    strcat(confirmation, habit->name);
-    strcat(confirmation, "\"? (y/n):");
-
-    int confirm = popup_confirmation(confirmation);
-    if (confirm == 0) { // 취소
-        popup_message("Deletion canceled.");
-        active_screen = NULL;
-        return;
-    }
-
-    // 6. 습관 삭제
-    for (int i = choice - 1; i < habit_count - 1; i++) {
-        habits[i] = habits[i + 1]; // 배열 재정렬
-    }
-    habit_count--;
-
-    popup_message("Habit successfully deleted!");
 
     active_screen = NULL; // UI 초기화
 }
+
 
 // 습관 성공 여부 입력
 void mark_habit_success() {
@@ -320,52 +314,32 @@ void mark_habit_success() {
     }
 
     // 1. 현재 습관 목록 출력
-    char habit_choices[MAX_HABITS][100] = {0};
-    for (int i = 0; i < habit_count; i++) {
-        snprintf(habit_choices[i], sizeof(habit_choices[i]), "%d. %s (Streak: %d streak)", 
-                 i + 1, habits[i].name, habits[i].streak);
-    }
-
-    char choice_buffer[10] = {0};
-    InputField fields[] = {
-        {"Enter the habit number to mark success", choice_buffer, sizeof(choice_buffer), NULL}
-    };
-
-    UIScreen screen = {
-        "Mark Habit Success",
-        fields,
-        sizeof(fields) / sizeof(fields[0])
-    };
-
-    // 2. 현재 습관 리스트 출력
     clear();
     mvprintw(2, 10, "Mark Habit Success:");
+    mvprintw(4, 10, "Select a habit to mark as success:");
+
     for (int i = 0; i < habit_count; i++) {
-        mvprintw(4 + i, 10, "%s", habit_choices[i]);
+        mvprintw(6 + i, 10, "%d. %s (Streak: %d)", i + 1, habits[i].name, habits[i].streak);
     }
-    mvprintw(5 + habit_count, 10, "Enter the number of the habit (or :b to go back):");
+
+    mvprintw(7 + habit_count, 10, "Enter the number of the habit (or :b to go back): ");
     refresh();
 
-    // 3. 사용자 입력 처리
-    active_screen = &screen;
-    current_step = 0;
-
-    if (process_user_input(&screen) != 0) {
-        popup_message("Action canceled.");
-        active_screen = NULL;
-        return;
+    // 2. 사용자 입력 처리
+    char buffer[128] = {0};
+    if (get_input(buffer, sizeof(buffer)) == -1) {
+        return; // 뒤로가기 처리
     }
 
-    // 4. 입력값을 직접 검사
-    int choice = atoi(choice_buffer);
+    int choice = atoi(buffer);
     if (choice < 1 || choice > habit_count) {
         popup_message("Invalid choice. Please try again.");
-        active_screen = NULL;
         return;
     }
 
-    // 5. 습관 성공 처리
     Habit *habit = &habits[choice - 1];
+
+    // 3. 성공 처리 확인
     if (habit->is_done) {
         popup_message("Habit already marked as success!");
     } else {
@@ -373,11 +347,7 @@ void mark_habit_success() {
         habit->is_done = 1;
         popup_message("Habit marked as success!");
     }
-
-    active_screen = NULL; // UI 초기화
 }
-
-
 
 // 습관 관리 서브 메뉴
 void habit_submenu() {
