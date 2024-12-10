@@ -198,6 +198,9 @@ void modifyEvents() {
         return;
     }
 
+    Time current;
+    initTime(&current); // 현재 시간 초기화
+
     // 1. 현재 이벤트 리스트 출력
     clear();
     mvprintw(2, 10, "Modify Event:");
@@ -269,6 +272,9 @@ void modifyEvents() {
         event->importance = atoi(importance);
         event->reminder = atoi(reminder);
         strncpy(event->details, details, sizeof(event->details));
+
+        // D-day 재계산
+        calDday(event, current);
 
         popup_message("Event successfully modified!");
     } else {
