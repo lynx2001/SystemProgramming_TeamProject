@@ -212,7 +212,7 @@ void change_habit() {
     snprintf(new_name, sizeof(new_name), "%s", habit->name);
 
     InputField fields[] = {
-        {"Modify habit name", new_name, sizeof(new_name), NULL, 0}
+        {"Modify habit name", new_name, sizeof(new_name), NULL, 1}
     };
 
     UIScreen modify_screen = {

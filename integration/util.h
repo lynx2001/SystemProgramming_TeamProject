@@ -8,6 +8,7 @@
 #include "display.h"
 
 //유효성 테스트용 임시
+bool validate_title(const char *input);
 bool validateDate(int year, int month, int day);
 bool validateTime(int hour, int minute);
 bool validate_date_wrapper(const char *input);

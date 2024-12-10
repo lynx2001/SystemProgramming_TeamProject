@@ -145,7 +145,7 @@ void addEvents() {
 
     // 입력 필드 정의
     InputField fields[] = {
-        {"Enter event title", event.title, sizeof(event.title), NULL, 0},
+        {"Enter event title", event.title, sizeof(event.title), validate_title, 0},
         {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 0},
         {"Enter start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper, 1}, // 공백 허용
         {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 0},

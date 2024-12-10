@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
+#include <ctype.h>
 #include "global.h"
 #include "util.h"
 #include "display.h"
@@ -82,6 +83,22 @@ int popup_confirmation(const char *message) {
 
     // 반환값을 1 (y) 또는 0 (n)으로 매핑
     return (choice == 'y') ? 1 : 0;
+}
+
+/* 아래는 validation 관련 함수 */
+bool validate_title(const char *input) {
+    if (input == NULL) {
+        return false; // NULL 입력은 허용하지 않음
+    }
+    
+    while (*input) {
+        if (!isspace((unsigned char)*input)) {
+            return true; // 공백이 아닌 문자가 하나라도 있으면 true 반환
+        }
+        input++;
+    }
+    
+    return false; // 공백으로만 이루어진 문자열
 }
 
 bool validateDate(int year, int month, int day) {
