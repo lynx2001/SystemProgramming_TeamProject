@@ -24,7 +24,7 @@ typedef struct info{
 	int end_month;
 	int end_day;
     char memo[100];
-    int quantity;
+    double quantity;
 }info;
 
 // 각 월의 일수를 저장한 배열 (윤년이 아닌 경우)
@@ -87,7 +87,7 @@ void get_line(char *line, struct info* e) {
     token = strtok(NULL, "|"); 
     token = strtok(NULL, "|"); 
     if (token != NULL) {
-        sscanf(token, "%d", &e->quantity);
+        sscanf(token, "%lf", &e->quantity);
     }
     // 필요 없는 데이터 건너뜀
     for (int i = 0; i < 4; i++) { 
@@ -176,7 +176,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
     {
         mvprintw(x, y_coordinate[0], "%s", name);
         if (event->quantity != -1)
-            mvprintw(x, y_coordinate[0]-5, "[%d]", event->quantity);
+            mvprintw(x, y_coordinate[0]-7, "[%.2lf]", event->quantity);
 
         // 시작시간, 종료시간이 표기되어 있는 경우
         if (strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") != 0)  
@@ -510,47 +510,71 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
                     continue;
             }
 
-            // 이번 달 일정인지 확인
-            if ((e.start_year == year && e.start_month == month) || (e.end_year == year && e.end_month == month)) {
-                // 이번 달 안에만 연속적인 일정인 경우
-                if ((e.start_year == year && e.start_month == month) && (e.end_year == year && e.end_month == month)) 
-                {
-                    e.start_wday = (e.start_day + start_wday - 1) % 7; // 일정 시작하는 요일 계산
-                    e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
-                    e.end_week = (e.end_day + start_wday - 1) / 7; // 일정 끝나는 주 계산
-                    e.end_wday = (e.end_day + start_wday - 1) % 7; // 일정 끝나는 요일 계산
-                }
-                // 이번달과 다음달이 이어지는 일정인 경우
-                else if ((e.start_year == year && e.start_month == month))
-                {
-                    int days = days_in_month[month-1];
-                    // 윤년이고 2월인 경우, 하루를 추가
-                    if (month == 2 && is_leap_year(year)) {
-                        days = 29;
-                    }
-        
-                    // 일정 끝나는 요일 계산
-                    e.end_wday = get_start_day_of_month(e.end_year, e.end_month) - 1;
-                    if (e.end_wday < 0)
-                        e.end_wday = 6;
+            int start_eNum = e.start_year * 100 + e.start_month;
+            int end_eNum = e.end_year * 100 + e.end_month;
+            int cal_Num = year * 100 + month;
 
-                    e.end_week = (days + start_wday - 1) / 7; //일정 끝나는 주 계산
-
-                    e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
-                    e.start_wday = (e.start_day + start_wday - 1) % 7; // 일정 시작하는 요일 계산
+            if (cal_Num == start_eNum && cal_Num == end_eNum) // 연속일정이 현재 달에만 하는 경우
+            {
+                e.start_wday = (e.start_day + start_wday - 1) % 7; // 일정 시작하는 요일 계산
+                e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
+                e.end_week = (e.end_day + start_wday - 1) / 7; // 일정 끝나는 주 계산
+                e.end_wday = (e.end_day + start_wday - 1) % 7; // 일정 끝나는 요일 계산
+            }
+            else if (cal_Num == start_eNum && cal_Num < end_eNum) // 일정이 다음달까지 이어지는 경우
+            {
+                int days = days_in_month[month-1];
+                // 윤년이고 2월인 경우, 하루를 추가
+                if (month == 2 && is_leap_year(year)) {
+                    days = 29;
                 }
-                else if ((e.end_year == year && e.end_month == month))
-                {
-                    e.start_wday = get_start_day_of_month(e.end_year, e.end_month); // 일정 시작하는 요일 계산
-                    e.start_week = 0; // 일정 시작하는 주 계산
-                    e.end_week = (e.end_day + e.start_wday - 1) / 7; // 일정 끝나는 주 계산
-                    e.end_wday = (e.end_day + e.start_wday - 1) % 7; // 일정 끝나는 요일 계산
-                }
+    
+                // 일정 끝나는 요일 계산
+                if (month != 12)
+                    e.end_wday = get_start_day_of_month(year, month + 1) - 1;
+                else
+                    e.end_wday = get_start_day_of_month(year+1, 1) - 1;
 
-                print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
-                color = ((color + 1) % 3) ;
-		    } 
-            
+                if (e.end_wday < 0)
+                    e.end_wday = 6;
+
+                e.end_week = (days + start_wday - 1) / 7; //일정 끝나는 주 계산
+
+                e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
+                e.start_wday = (e.start_day + start_wday - 1) % 7; // 일정 시작하는 요일 계산
+            }
+            else if(cal_Num > start_eNum && cal_Num < end_eNum) // 이번달 전체가 일정인 경우
+            {
+                int days = days_in_month[month-1];
+                // 윤년이고 2월인 경우, 하루를 추가
+                if (month == 2 && is_leap_year(year)) {
+                    days = 29;
+                }
+    
+                // 일정 끝나는 요일 계산
+                if (month != 12)
+                    e.end_wday = get_start_day_of_month(year, month + 1) - 1;
+                else
+                    e.end_wday = get_start_day_of_month(year+1, 1) - 1;
+
+                if (e.end_wday < 0)
+                    e.end_wday = 6;
+
+                e.end_week = (days + start_wday - 1) / 7; //일정 끝나는 주 계산
+
+                e.start_wday = get_start_day_of_month(year, month); // 일정 시작하는 요일 계산
+                e.start_week = 0; // 일정 시작하는 주 계산
+            }
+            else if (cal_Num > start_eNum && cal_Num == end_eNum) // 일정의 마지막 달인 경우
+            {
+                e.start_wday = get_start_day_of_month(e.end_year, e.end_month); // 일정 시작하는 요일 계산
+                e.start_week = 0; // 일정 시작하는 주 계산
+                e.end_week = (e.end_day + e.start_wday - 1) / 7; // 일정 끝나는 주 계산
+                e.end_wday = (e.end_day + e.start_wday - 1) % 7; // 일정 끝나는 요일 계산
+            }    
+
+            print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
+            color = ((color + 1) % 3);            
             if (n_char == 0)
             {
                 break;
