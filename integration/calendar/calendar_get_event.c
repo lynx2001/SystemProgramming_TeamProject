@@ -520,6 +520,9 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
                 e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
                 e.end_week = (e.end_day + start_wday - 1) / 7; // 일정 끝나는 주 계산
                 e.end_wday = (e.end_day + start_wday - 1) % 7; // 일정 끝나는 요일 계산
+
+                print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
+                color = ((color + 1) % 3);     
             }
             else if (cal_Num == start_eNum && cal_Num < end_eNum) // 일정이 다음달까지 이어지는 경우
             {
@@ -542,6 +545,9 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
 
                 e.start_week = (e.start_day + start_wday - 1) / 7; // 일정 시작하는 주 계산
                 e.start_wday = (e.start_day + start_wday - 1) % 7; // 일정 시작하는 요일 계산
+
+                print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
+                color = ((color + 1) % 3);     
             }
             else if(cal_Num > start_eNum && cal_Num < end_eNum) // 이번달 전체가 일정인 경우
             {
@@ -564,6 +570,9 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
 
                 e.start_wday = get_start_day_of_month(year, month); // 일정 시작하는 요일 계산
                 e.start_week = 0; // 일정 시작하는 주 계산
+
+                print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
+                color = ((color + 1) % 3);     
             }
             else if (cal_Num > start_eNum && cal_Num == end_eNum) // 일정의 마지막 달인 경우
             {
@@ -571,10 +580,11 @@ void get_continuous_event(int year, int month, int start_wday, int width, int x_
                 e.start_week = 0; // 일정 시작하는 주 계산
                 e.end_week = (e.end_day + e.start_wday - 1) / 7; // 일정 끝나는 주 계산
                 e.end_wday = (e.end_day + e.start_wday - 1) % 7; // 일정 끝나는 요일 계산
-            }    
 
-            print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
-            color = ((color + 1) % 3);            
+                print_continuous_event(&e, width, color + 7, x_coordinate, y_coordinate, used_coordinate, event_cnt);
+                color = ((color + 1) % 3);     
+            }    
+       
             if (n_char == 0)
             {
                 break;
