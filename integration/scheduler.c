@@ -122,7 +122,7 @@ void add_schedule() {
     char importance_buffer[10] = {0}, quantity_buffer[10] = {0}, reminder_buffer[5] = {0};
 
     InputField fields[] = {
-        {"Enter schedule title", title, sizeof(title), NULL, 0},
+        {"Enter schedule title", title, sizeof(title), validate_title, 0},
         {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 0},
         {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 0},
         {"Enter importance (0-5)", importance_buffer, sizeof(importance_buffer), validate_importance, 0},
