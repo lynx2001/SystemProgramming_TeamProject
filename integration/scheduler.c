@@ -119,12 +119,15 @@ void add_schedule() {
     // 입력 필드 정의
     char title[50] = {0}, details[100] = {0};
     char start_date[20] = {0}, end_date[20] = {0};
+    char start_time[10] = {0}, end_time[10] = {0};
     char importance_buffer[10] = {0}, quantity_buffer[10] = {0}, reminder_buffer[5] = {0};
 
     InputField fields[] = {
         {"Enter schedule title", title, sizeof(title), validate_title, 0},
         {"Enter start date (YYYY MM DD)", start_date, sizeof(start_date), validate_date_wrapper, 0},
+        {"Enter start time (HH MM)", start_time, sizeof(start_time), validate_time_wrapper, 1}, // 공백 허용
         {"Enter end date (YYYY MM DD)", end_date, sizeof(end_date), validate_date_wrapper, 0},
+        {"Enter end time (HH MM)", end_time, sizeof(end_time), validate_time_wrapper, 1}, // 공백 허용
         {"Enter importance (0-5)", importance_buffer, sizeof(importance_buffer), validate_importance, 0},
         {"Enter quantity (integer)", quantity_buffer, sizeof(quantity_buffer), validate_quantity, 0},
         {"Set reminder (1: Yes, 0: No)", reminder_buffer, sizeof(reminder_buffer), validate_reminder, 0},
@@ -151,11 +154,14 @@ void add_schedule() {
     // 데이터 파싱 및 유효성 검사
     Event new_event;
     int year_start, month_start, day_start, year_end, month_end, day_end;
+    int hour_start, minute_start, hour_end, minute_end;
     double importance, quantity;
     int reminder;
 
     sscanf(start_date, "%d %d %d", &year_start, &month_start, &day_start);
+    sscanf(start_time, "%d %d", &hour_start, &minute_start);
     sscanf(end_date, "%d %d %d", &year_end, &month_end, &day_end);
+    sscanf(end_time, "%d %d", &hour_end, &minute_end);
     importance = atof(importance_buffer);
     quantity = atof(quantity_buffer);
     reminder = atoi(reminder_buffer);
@@ -167,14 +173,14 @@ void add_schedule() {
     new_event.date_start.year = year_start;
     new_event.date_start.month = month_start;
     new_event.date_start.day = day_start;
-    new_event.date_start.hour = 24; // 기본값
-    new_event.date_start.minute = 0;
+    new_event.date_start.hour = hour_start; // 기본값
+    new_event.date_start.minute = minute_start;
 
     new_event.date_end.year = year_end;
     new_event.date_end.month = month_end;
     new_event.date_end.day = day_end;
-    new_event.date_end.hour = 24; // 기본값
-    new_event.date_end.minute = 0;
+    new_event.date_end.hour = hour_end; // 기본값
+    new_event.date_end.minute = minute_end;
 
     new_event.importance = importance;
     new_event.reminder = reminder;

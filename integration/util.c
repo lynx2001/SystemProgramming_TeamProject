@@ -271,6 +271,42 @@ int process_user_input(UIScreen *screen) {
 
         // 유효한 입력을 필드에 저장
         strncpy(screen->fields[current_step].buffer, buffer, screen->fields[current_step].buffer_size);
+
+        /* 저장 후 날짜 비교가 가능 */
+        // 날짜 및 시간 검사 추가 (시작일 및 시작시간 < 종료일 및 종료시간 확인)
+        if (strcmp(screen->fields[current_step].prompt, "Enter end time (HH MM)") == 0) {
+            int year_start, month_start, day_start, hour_start, minute_start;
+            int year_end, month_end, day_end, hour_end, minute_end;
+
+            // 시작일과 시작시간, 종료일과 종료시간을 모두 파싱
+            sscanf(screen->fields[1].buffer, "%d %d %d", &year_start, &month_start, &day_start);
+            sscanf(screen->fields[2].buffer, "%d %d", &hour_start, &minute_start);
+            sscanf(screen->fields[3].buffer, "%d %d %d", &year_end, &month_end, &day_end);
+            sscanf(screen->fields[4].buffer, "%d %d", &hour_end, &minute_end);
+
+            // 시작일이 종료일보다 나중인 경우 오류 메시지 출력
+            if (year_start > year_end ||
+                (year_start == year_end && month_start > month_end) ||
+                (year_start == year_end && month_start == month_end && day_start > day_end)) {
+                popup_message("Invalid date input. Please try again.");
+                return -1;
+            }
+
+            // 날짜가 같은 경우에만 시간 비교
+            if (year_start == year_end && month_start == month_end && day_start == day_end) {
+                // 24:00인 경우 시간 비교를 하지 않음
+                if (!(hour_start == 24 && minute_start == 0) && !(hour_end == 24 && minute_end == 0)) {
+                    // 시작시간이 종료시간보다 나중인 경우 오류 메시지 출력
+                    if (hour_start > hour_end ||
+                        (hour_start == hour_end && minute_start > minute_end)) {
+                        popup_message("Invalid time input. Please try again.");
+                        return -1;
+                    }
+                }
+            }
+        }
+
+        // 필드 입력 완료 후 다음 단계로 이동
         current_step++;
     }
 
