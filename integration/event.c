@@ -167,7 +167,7 @@ void addEvents() {
         calDday(&event, current);
 
         // 기타 값 초기화 (일반 일정 기본값 설정)
-        event.importance = 0; 
+        event.importance = -1; 
         event.quantity = -1;
         event.interval = -1;
         event.weight = -1;

@@ -20,11 +20,11 @@ typedef struct {
     struct {
         int year, month, day, hour, minute;
     } date_start, date_end;
-    int importance;     // 0 ~ 5 사이 정수
+    int importance;     // 0 ~ 5 사이 정수 (일반 일정은 default : -1)
     double quantity;    // 하루 당 분량
     double interval;    // 마감일 - 시작일
     double Dday;        // 마감일 - 현재일(now)
-    double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산) >> default : -1
+    double weight;      // 가중치 식에 따라 계산 (지역변수 importance를 사용해서 계산)
     int reminder;       // 리마인더
     char details[100];
 

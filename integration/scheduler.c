@@ -101,7 +101,9 @@ void updateDdayAndWeights(Event events[], int count) {
 
     for(int i = 0; i < count; i++) {
         calDday(&events[i], current);
-        calWeight(&events[i], events[i].importance);
+        if (events[i].importance != -1) { // 일반 일정인 경우 weight 계산 안함
+            calWeight(&events[i], events[i].importance);
+        }
     }
 }
 
