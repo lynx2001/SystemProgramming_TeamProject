@@ -40,7 +40,6 @@ int main() {
     initializeDateMonitor();
     startDateMonitor();
 
-//
     initscr();         // ncurses 초기화
     noecho();          // 사용자 입력 숨기기
     curs_set(FALSE);   // 커서 숨기기
