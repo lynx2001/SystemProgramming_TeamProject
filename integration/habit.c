@@ -117,7 +117,7 @@ void loadHabits() {
 
     }
 
-    while (fscanf(file, "%49[^|]|%d|%d", habits[habit_count].name, &habits[habit_count].streak, &habits[habit_count].is_done) == 3) {
+    while (fscanf(file, "%49s %d %d", habits[habit_count].name, &habits[habit_count].streak, &habits[habit_count].is_done) == 3) {
         habit_count++;
         if (habit_count >= MAX_HABITS) break;
     }
