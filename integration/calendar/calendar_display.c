@@ -172,7 +172,7 @@ void show_small_month(int year, int month, struct winsize *wbuf)
 
 	mvhline(title_row + 3, header_col, '-', header_col * 10);
 
-	get_event_in_table(year, month, day, header_col, title_row + 4, y_coordinate);
+	get_event_in_table(year, month, day, header_col * 3, title_row + 4, y_coordinate);
 
 
     refresh();
