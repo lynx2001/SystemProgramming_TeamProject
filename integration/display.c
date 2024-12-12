@@ -10,8 +10,12 @@
 static void draw_reminders(int start_y, int column_width) {
     mvprintw(start_y++, 5, "Reminders:");
     for (int i = 0; i < event_count; i++) {
-        if (events[i].Dday <= 3) {  // D-day가 3일 이하인 이벤트만 출력
-            mvprintw(start_y++, 5, "- %s (D-%.0f)", events[i].title, events[i].Dday + 1);
+        if (events[i].reminder == 1 && events[i].Dday <= 3) {  
+            if (events[i].Dday == 0) {
+                mvprintw(start_y++, 5, "- %s (D-day)", events[i].title);
+            } else if (events[i].Dday >= 0) {
+                mvprintw(start_y++, 5, "- %s (D-%.0f)", events[i].title, events[i].Dday);
+            }
         }
     }
 }
