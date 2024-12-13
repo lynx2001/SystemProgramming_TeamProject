@@ -214,7 +214,7 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
         if (event->start_year == event->end_year &&
             event->start_month == event->end_month &&
             event->start_day == event->end_day)
-            mvprintw(x, y_coordinate[0] + width * 2 - 7, "%4d-%02d-%02d", event->start_year, event->start_month, event->start_day);
+            mvprintw(x, y_coordinate[0], "%4d-%02d-%02d", event->start_year, event->start_month, event->start_day);
         // 연속 일정의 경우
         else
             mvprintw(x, y_coordinate[0], "%4d-%02d-%02d~%4d-%02d-%02d", 
@@ -224,16 +224,16 @@ int print_event_table(struct info* event, int width, int x, int y_coordinate[3])
         
         // 시작시간, 종료시간이 표기되어 있는 경우
         if (strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") != 0)  
-            mvprintw(x, y_coordinate[2] + width - 6, "%s~%s", event->start_time, event->end_time);
+            mvprintw(x, y_coordinate[2] + width / 3 - 6, "%s~%s", event->start_time, event->end_time);
         // 시작시간만 표기된 경우
         else if(strcmp(event->start_time, "24:00") != 0 && strcmp(event->end_time, "24:00") == 0) 
-            mvprintw(x, y_coordinate[2] + width - 2, "%s~", event->start_time);
+            mvprintw(x, y_coordinate[2] + width / 3 - 2, "%s~", event->start_time);
         // 종료 시간만 표기된 경우
         else if(strcmp(event->end_time, "24:00") != 0 && strcmp(event->start_time, "24:00") == 0) 
-            mvprintw(x, y_coordinate[2] + width - 2, "~%s", event->end_time);
+            mvprintw(x, y_coordinate[2] + width / 3- 2, "~%s", event->end_time);
         // 시간이 표기되어 있지 않은 경우
         else if(strcmp(event->start_time, "24:00") == 0) 
-            mvprintw(x, y_coordinate[2] + width - 1, "-");
+            mvprintw(x, y_coordinate[2] + width / 3- 1, "-");
 
     }
 
