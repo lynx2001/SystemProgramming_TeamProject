@@ -24,7 +24,7 @@ static void draw_reminders(int start_y, int column_width) {
 static void draw_habits(int start_y, int column_width) {
     mvprintw(start_y++, column_width + 5, "Habits:");
     for (int i = 0; i < habit_count; i++) {
-        if(habits[i].is_done==0){
+        if(habits[i].is_done!=0){
             mvprintw(start_y++, column_width + 5, "- %s is done(Streak: %d days)", habits[i].name, habits[i].streak);
         }
         else{

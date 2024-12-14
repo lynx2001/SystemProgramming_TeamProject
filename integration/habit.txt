@@ -1,2 +1,4 @@
 2024-12-14
-add 0 0
+readbook 1 1
+workout 0 0
+A 0 0
