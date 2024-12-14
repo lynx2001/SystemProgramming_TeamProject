@@ -117,7 +117,7 @@ void loadHabits() {
 
     }
 
-    while (fscanf(file, "%49s %d %d", habits[habit_count].name, &habits[habit_count].streak, &habits[habit_count].is_done) == 3) {
+    while (fscanf(file, "%49[^|]|%d|%d", habits[habit_count].name, &habits[habit_count].streak, &habits[habit_count].is_done) == 3) {
         habit_count++;
         if (habit_count >= MAX_HABITS) break;
     }
@@ -137,7 +137,7 @@ void add_habit() {
     char name[50] = {0};
 
     InputField fields[] = {
-        {"Enter habit name", name, sizeof(name), NULL, 0} // 습관 이름은 유효성 검사 없음
+        {"Enter habit name(no spaces)", name, sizeof(name), NULL, 0} // 습관 이름은 유효성 검사 없음
     };
 
     UIScreen screen = {"Add Habit", fields, sizeof(fields) / sizeof(fields[0])};
@@ -147,6 +147,12 @@ void add_habit() {
     current_step = 0;
 
     if (process_user_input(&screen) == 0) {
+        
+        // 3. 공백 검사
+        if (strchr(name, ' ') != NULL) {
+            popup_message("Spaces not allowed Saving failed.");
+            return;
+        }
         // 3. 중복 체크
         for (int i = 0; i < habit_count; i++) {
             if (strcmp(habits[i].name, name) == 0) {
@@ -230,6 +236,11 @@ void change_habit() {
     current_step = 0;
 
     if (process_user_input(&modify_screen) == 0) {
+        // 5. 공백 검사
+        if (strchr(new_name, ' ') != NULL) {
+            popup_message("Spaces not allowed. Change failed.");
+            return;
+        }
         // 5. 수정 데이터 반영
         strncpy(habit->name, new_name, sizeof(habit->name));
         popup_message("Habit successfully changed!");
