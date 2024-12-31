@@ -50,8 +50,8 @@ int get_start_day_of_month(int year, int month) {
         y -= 1;
     }
 
-	int k = year % 100; // 연도 뒷 2자리
-	int j = year / 100; // 연도 앞 2자리
+	int k = y % 100; // 연도 뒷 2자리
+	int j = y / 100; // 연도 앞 2자리
 	
 	// Zellar's Congruenc 공식 사용
     int h = (day + ((13 * (m + 1)) / 5) + k + (k / 4) + (j / 4) - (j * 2)) % 7;
